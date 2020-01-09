@@ -92,10 +92,6 @@ void fillrect(multiboot_uint32_t fb, int x, int y, int w, int h, int bpp,
 	}
 }
 
-void draw_char(multiboot_uint32_t fb, int x, int y, int bpp, int pitch, multiboot_uint8_t **char) {
-
-}
-
 void kernel_main() {
 
 	/* Clear the screen. */

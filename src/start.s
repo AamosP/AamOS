@@ -15,7 +15,7 @@
         .long CHECKSUM
         .long 0, 0, 0, 0, 0
         .long 0
-        .long 1024, 768, 32
+        .long 1920, 1080, 32
 
 .section .bss
 	.align 16
