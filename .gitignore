@@ -3,3 +3,4 @@ src/*.o
 src/aamOS.*
 aamOS.iso
 .git
+tmp/

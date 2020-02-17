@@ -32,7 +32,7 @@ dependencies:
 	make all -C src
 
 clean:
-	rm -r src/isodir src/aamOS.elf src/*.o aamOS.iso
+	rm -r src/isodir src/aamOS.elf src/*.o
 
 dist:
 	tar czf aamOS.tgz $(ALLFILES)

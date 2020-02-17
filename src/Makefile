@@ -20,5 +20,5 @@ all: start.o kernel.o aamOS.elf
 %.o: %.s
 	$(CC) $(ASFLAGS) -c $< -o $@
 
-aamOS.elf: start.o kernel.o
+aamOS.elf: start.o kernel.o vga.o utils.o keyboard.o font.o
 	$(CC) -ffreestanding -nostdlib -g -T link.ld $? -o aamOS.elf -lgcc

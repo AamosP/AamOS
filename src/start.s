@@ -1,5 +1,6 @@
 .extern kernel_main
 .extern mbi
+.extern idt
 
 .set ALIGN, 1 << 0
 .set MEMINFO, 1 << 1
@@ -15,7 +16,7 @@
         .long CHECKSUM
         .long 0, 0, 0, 0, 0
         .long 0
-        .long 1920, 1080, 32
+        .long 800, 600, 32
 
 .section .bss
 	.align 16
@@ -24,8 +25,9 @@
 	stack_top:
 
 .section .text
-.global _start
+.global _start, storeIdt
 .type _start, @function
+.type storeIdt, @function
 
 _start:
 	mov $stack_top, %esp
@@ -34,5 +36,9 @@ _start:
 	cli
 l:	hlt
 	jmp l
+
+storeIdt:
+	sidt idt
+	ret
 
 .size _start, .- _start
