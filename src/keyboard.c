@@ -5,17 +5,7 @@
 
 unsigned char kb_data[5];
 
-void init_kb(unsigned char scancode_set) {
-//#define SCANCODE_SET scancode_set
-//	outb(KB_PORT, CMD_RESET);
-//	while(inb(KB_PORT) != SELF_TEST_PASSED) {
-//
-//	}
-//	outb(KB_PORT, CMD_SCANCODE);
-//	outb(KB_PORT, scancode_set);
-//	while(inb(KB_PORT) != ACK) {
-//
-//	}
+void init_kb() {
 	kb_data[0] = 0;
 	kb_data[1] = 0;
 	kb_data[2] = 0;

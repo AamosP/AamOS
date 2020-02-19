@@ -5,5 +5,6 @@ if [[ "$OSTYPE" == "linux" ]] ; then
 elif [[ "$OSTYPE" == "darwin"* ]] ; then
 	./make-iso-mac.sh
 fi
-qemu-system-i386 aamOS.iso
+qemu-system-i386 -s -S aamOS.iso &
+gdb --eval-command='target remote localhost:1234' --eval-command='symbol-file src/aamOS.elf'
 make clean

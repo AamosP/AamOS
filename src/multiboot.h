@@ -68,8 +68,6 @@
 #define MULTIBOOT_INFO_VBE_INFO                 0x00000800
 #define MULTIBOOT_INFO_FRAMEBUFFER_INFO         0x00001000
 
-#include <vbe.h>
-
 typedef unsigned char multiboot_uint8_t;
 typedef unsigned short multiboot_uint16_t;
 typedef unsigned int multiboot_uint32_t;
@@ -116,6 +114,32 @@ struct multiboot_elf_section_header_table {
 	multiboot_uint32_t shndx;
 };
 typedef struct multiboot_elf_section_header_table multiboot_elf_section_header_table_t;
+
+struct vbe_mode_info {
+	multiboot_uint16_t attributes;
+	multiboot_uint8_t winA, winB;
+	multiboot_uint16_t granularity;
+	multiboot_uint16_t winsize;
+	multiboot_uint16_t segmentA, segmentB;
+	multiboot_uint32_t realFctPtr;
+	multiboot_uint16_t pitch; // bytes per scanline
+
+	multiboot_uint16_t Xres, Yres;
+	multiboot_uint8_t Wchar, Ychar, planes, bpp, banks;
+	multiboot_uint8_t memory_model, bank_size, image_pages;
+	multiboot_uint8_t reserved0;
+
+	multiboot_uint8_t red_mask, red_position;
+	multiboot_uint8_t green_mask, green_position;
+	multiboot_uint8_t blue_mask, blue_position;
+	multiboot_uint8_t rsv_mask, rsv_position;
+	multiboot_uint8_t directcolor_attributes;
+
+	multiboot_uint32_t physbase;  // your LFB (Linear Framebuffer) address ;)
+	multiboot_uint32_t reserved1;
+	multiboot_uint16_t reserved2;
+};
+typedef struct vbe_mode_info vbe_mode_info_t;
 
 struct multiboot_info {
 	/* Multiboot info version number */

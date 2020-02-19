@@ -647,4 +647,5 @@ unsigned char *font_data;
 
 void load_font_data() {
 	font_data = fd_baselatin;
+	return;
 }
