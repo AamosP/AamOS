@@ -16,14 +16,14 @@ __inline void outb(unsigned char __value, unsigned short int __port) {
 void itoa(char *buf, int base, int d) {
 	char *p = buf;
 	char *p1, *p2;
-	unsigned long ud = d;
+	unsigned long ud = (unsigned)d;
 	int divisor = 10;
 
 	/* If %d is specified and D is minus, put ‘-’ in the head. */
 	if (base == 'd' && d < 0) {
 		*p++ = '-';
 		buf++;
-		ud = -d;
+		ud = (unsigned)-d;
 	} else if (base == 'x') {
 		divisor = 16;
 	} else if(base == 'b') {
@@ -31,10 +31,10 @@ void itoa(char *buf, int base, int d) {
 	}
 	/* Divide UD by DIVISOR until UD == 0. */
 	do {
-		int remainder = ud % divisor;
+		unsigned int remainder = ud % (unsigned)divisor;
 
-		*p++ = (remainder < 10) ? remainder + '0' : remainder + 'a' - 10;
-	} while (ud /= divisor);
+		*p++ = (char)((remainder < 10) ? remainder + '0' : remainder + 'a' - 10);
+	} while (ud /= (unsigned)divisor);
 
 	/* Terminate BUF. */
 	*p = 0;
@@ -49,4 +49,15 @@ void itoa(char *buf, int base, int d) {
 		p1++;
 		p2--;
 	}
+}
+
+int oct2bin(unsigned char *str, int size) {
+    int n = 0;
+    unsigned char *c = str;
+    while (size-- > 0) {
+        n *= 8;
+        n += *c - '0';
+        c++;
+    }
+    return n;
 }

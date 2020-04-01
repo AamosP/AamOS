@@ -141,6 +141,28 @@ struct vbe_mode_info {
 };
 typedef struct vbe_mode_info vbe_mode_info_t;
 
+struct framebuffer_palette {
+	multiboot_uint32_t framebuffer_palette_addr;
+	multiboot_uint16_t framebuffer_palette_num_colors;
+};
+typedef struct framebuffer_palette framebuffer_palette_t;
+
+struct color_type {
+	multiboot_uint8_t framebuffer_red_field_position;
+	multiboot_uint8_t framebuffer_red_mask_size;
+	multiboot_uint8_t framebuffer_green_field_position;
+	multiboot_uint8_t framebuffer_green_mask_size;
+	multiboot_uint8_t framebuffer_blue_field_position;
+	multiboot_uint8_t framebuffer_blue_mask_size;
+};
+typedef struct color_type color_type_t;
+
+union color_info {
+	framebuffer_palette_t framebuffer_palette;
+	color_type_t color_type;
+};
+typedef union color_info color_info_t;
+
 struct multiboot_info {
 	/* Multiboot info version number */
 	multiboot_uint32_t flags;
@@ -198,20 +220,7 @@ struct multiboot_info {
 #define MULTIBOOT_FRAMEBUFFER_TYPE_RGB     1
 #define MULTIBOOT_FRAMEBUFFER_TYPE_EGA_TEXT     2
 	multiboot_uint8_t framebuffer_type;
-	union {
-		struct {
-			multiboot_uint32_t framebuffer_palette_addr;
-			multiboot_uint16_t framebuffer_palette_num_colors;
-		};
-		struct {
-			multiboot_uint8_t framebuffer_red_field_position;
-			multiboot_uint8_t framebuffer_red_mask_size;
-			multiboot_uint8_t framebuffer_green_field_position;
-			multiboot_uint8_t framebuffer_green_mask_size;
-			multiboot_uint8_t framebuffer_blue_field_position;
-			multiboot_uint8_t framebuffer_blue_mask_size;
-		};
-	};
+	color_info_t color_info;
 };
 typedef struct multiboot_info multiboot_info_t;
 

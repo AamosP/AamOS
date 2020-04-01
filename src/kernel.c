@@ -1,5 +1,4 @@
 #include <multiboot.h>
-#include <stdint.h>
 #include <kernel.h>
 #include <vga.h>
 #include <utils.h>
@@ -14,26 +13,25 @@
 
 multiboot_info_t *mbi;
 
-void kernel_main() {
+void kernel_main(void);
 
+void kernel_main() {
 	if (CHECK_FLAG(mbi->flags, 11)) {
 		VGA_init(mbi);
-		load_font_data();
+		init_kb();
 		while (1) {
-			init_kb();
 			read_kb();
-			unsigned char* s;
-			for (int i = 0; i < 5; i++) {
-				itoa(s, 'x', kb_data[i]);
-				int l = 0;
-				while (s[l] != NULL) {
-					l++;
-				}
-				if (l < 2) {
-					VGA_writestring(0, i*8, "0", 0, 0x00ffffff);
-					VGA_writestring(8, i*8, s, 0, 0x00ffffff);
-				} else VGA_writestring(0, i*8, s, 0, 0x00ffffff);
+			char* s = (char*)"";
+			itoa(s, 'x', kb_data);
+			int l = 0;
+			while (s[l]) {
+				l++;
 			}
+			if (l < 2) {
+				VGA_writestring(8, 0, (uint8_t*)s, 0, 0x00ffffff);
+				VGA_writestring(0, 0, (uint8_t*)"0", 0, 0x00ffffff);
+			}
+			VGA_writestring(0, 0, (uint8_t*)s, 0, 0x00ffffff);
 		}
 	}
 }
