@@ -14,5 +14,6 @@ unsigned char inb(unsigned short int __port);
 void outb(unsigned char __value, unsigned short int __port);
 void itoa(char *buf, int base, int d);
 int oct2bin(unsigned char *str, int size);
+void print(unsigned char* str, unsigned int x, unsigned int y, uint64_t color);
 
 #endif

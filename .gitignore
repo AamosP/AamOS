@@ -4,3 +4,5 @@ src/aamOS.*
 aamOS.iso
 .git
 tmp/
+/aamOS_live.iso
+/.project

@@ -61,3 +61,7 @@ int oct2bin(unsigned char *str, int size) {
     }
     return n;
 }
+
+void print(unsigned char *str, unsigned int x, unsigned int y, uint64_t color) {
+	VGA_writestring(x, y, str, color << 32, color);
+}
