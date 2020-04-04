@@ -5,6 +5,7 @@
 
 void init_kb() {
 	kb_data = 0;
+	return;
 }
 
 void read_kb() {
@@ -18,4 +19,5 @@ void read_kb() {
 //		if (kb_data > 0x80)
 //			kb_data = 0;
 	}
+	return;
 }

@@ -1,26 +1,44 @@
-#include <multiboot.h>
+#include <multiboot2.h>
 #include <kernel.h>
 #include <vga.h>
 #include <utils.h>
 #include <font.h>
 #include <keyboard.h>
 #include <stddef.h>
+#include <console.h>
 
-/* Macros. */
+void kernel_main(unsigned long magic, unsigned long addr);
+struct multiboot_tag* get_tag(uint32_t tag_type, unsigned long addr);
 
-/* Check if the bit BIT in FLAGS is set. */
-#define CHECK_FLAG(flags,bit)   ((flags) & (1 << (bit)))
+void kernel_main(unsigned long magic, unsigned long addr) {
+	struct multiboot_tag *tag;
 
-multiboot_info_t *mbi;
+	tag = get_tag(MULTIBOOT_TAG_TYPE_FRAMEBUFFER, addr);
+	VGA_init((struct multiboot_tag_framebuffer*) tag);
 
-void kernel_main(void);
-
-void kernel_main() {
-	if (CHECK_FLAG(mbi->flags, 11)) {
-		VGA_init(mbi);
-		init_kb();
-		while (1) {
-			print("Hi!", 0, 0, 0x0000000000ffffff);
-		}
+	/*  Am I booted by a Multiboot-compliant boot loader? */
+	if (magic != MULTIBOOT2_BOOTLOADER_MAGIC) {
+		VGA_print(0, 0, (uint8_t*) "Invalid magic number", 0x00ff0000, 0);
+		return;
 	}
+
+	if (addr & 7) {
+		return;
+	}
+
+	VGA_print(0, 0, (uint8_t*) "Hello!", 0x00ffffff, 0);
+
+	uint32_t s[] = {0x2503, 'h'};
+
+	VGA_print(0, 16, s, 0x00ffffff, 0);
+}
+
+struct multiboot_tag* get_tag(uint32_t tag_type, unsigned long addr) {
+	struct multiboot_tag *tag;
+	tag = (struct multiboot_tag*) (addr + 8);
+	while (tag->type != tag_type) {
+		tag = (struct multiboot_tag*) ((uint8_t*) tag
+				+ ((tag->size + 7) & (unsigned) ~7));
+	}
+	return tag;
 }

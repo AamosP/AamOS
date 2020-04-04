@@ -6,8 +6,6 @@
 #define COM3 0x3e8
 #define COM4 0x2e8
 
-#define
-
 #define DATA 0						// Data Register if DLAB = 0 | Baud Rate Divisor Least Significant Byte if DLAB = 1
 #define INT_ENABLE 1				// Interrupt Enable Register if DLAB = 0 | Baud Rate Divisor Most Significant Byte if DLAB = 1
 #define INT_ID_FIFO_CONTROL 2		// Interrupt Identification and FIFO Control Registers

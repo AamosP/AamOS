@@ -1,83 +1,86 @@
 #include <vga.h>
-#include <multiboot.h>
-#include <kernel.h>
+#include <multiboot2.h>
+#include <utils.h>
 #include <font.h>
 #include <stddef.h>
-#include <utils.h>
 
-vbe_mode_info_t *vmi;
-uint32_t LFB_addr;
-uint8_t bpp;
-uint16_t pitch;
-uint16_t Xres;
-uint16_t Yres;
+static struct multiboot_tag_framebuffer *tagfb;
+static uint8_t *fb;
+static uint32_t fbtype;
+static uint32_t Xres;
+static uint32_t Yres;
+static uint32_t pitch;
+static uint8_t bpp;
 
-void VGA_clear() {
-	for (unsigned int i = 0; i < Xres; i++) {
-		for (unsigned int j = 0; j < Yres; j++) {
-			uint32_t *pixel = (uint32_t*)(LFB_addr + j * pitch + i * (bpp / 8));
-			*pixel = 0;
+void VGA_init(struct multiboot_tag_framebuffer *tag) {
+	tagfb = tag;
+	fb = (void*) (unsigned long) tagfb->common.framebuffer_addr;
+	fbtype = tagfb->common.framebuffer_type;
+	Xres = tagfb->common.framebuffer_width;
+	Yres = tagfb->common.framebuffer_height;
+	pitch = tagfb->common.framebuffer_pitch;
+	bpp = tagfb->common.framebuffer_bpp;
+	return;
+}
+
+void VGA_putpixel(uint32_t x, uint32_t y, uint32_t color) {
+	switch (bpp) {
+	case 8: {
+		uint8_t *pixel = fb + pitch * y + (bpp / 8) * x;
+		*pixel = (uint8_t)color;
+	}
+		break;
+	case 15:
+	case 16: {
+		uint16_t *pixel = (uint16_t*)((uint32_t)(fb) + pitch * y + 2 * x);
+		*pixel = (uint16_t)color;
+	}
+		break;
+	case 24: {
+		uint32_t *pixel = (uint32_t*)((uint32_t)(fb) + pitch * y + 3 * x);
+		*pixel = (color & 0xffffff) | (*pixel & 0xff000000);
+	}
+		break;
+	case 32: {
+		uint32_t *pixel = (uint32_t*)((uint32_t)(fb) + pitch * y + 4 * x);
+		*pixel = color;
+	}
+		break;
+	}
+	return;
+}
+
+void VGA_drawrect(uint32_t x, uint32_t y, uint32_t width, uint32_t height,
+		uint32_t color) {
+	for (unsigned int i = 0; i < width; i++) {
+		for (unsigned int j = 0; j < height; j++) {
+			VGA_putpixel(i + x, j + y, color);
 		}
 	}
+	return;
 }
 
-void VGA_init(multiboot_info_t *mbi) {
-	vmi = (vbe_mode_info_t*)mbi->vbe_mode_info;
-	LFB_addr = vmi->physbase;
-	bpp = vmi->bpp;
-	pitch = vmi->pitch;
-	Xres = vmi->Xres;
-	Yres = vmi->Yres;
-	VGA_clear();
-}
-
-void VGA_putpixel(unsigned int x, unsigned int y, unsigned int color) {
-	if (x <= Xres && y <= Yres) {
-		uint32_t *pixel = (uint32_t*)(LFB_addr + y * pitch + x * (bpp / 8));
-		if (bpp == 24) {
-			*pixel = (color & 0xffffff) | (*pixel & 0xff000000);
-		} else
-			*pixel = color;
-	}
-}
-
-void VGA_fillrect(unsigned int x, unsigned int y, unsigned int w,
-		unsigned int h, unsigned int color) {
-	for (unsigned int i = x; i < w + x; i++) {
-		for (unsigned int j = y; j < h + y; j++) {
-			uint32_t *pixel = (uint32_t*)(LFB_addr + j * pitch + i * (bpp / 8));
-			if (bpp == 24
-					&& *pixel != ((color & 0xffffff) | (*pixel & 0xff000000))) {
-				*pixel = (color & 0xffffff) | (*pixel & 0xff000000);
-			} else if (*pixel != color)
-				*pixel = color;
-		}
-	}
-}
-
-void VGA_drawchar(unsigned int x, unsigned int y, uint8_t c,
-		unsigned int bg_color, unsigned int fg_color) {
-	unsigned int l = 0;
-	unsigned int h = 0;
-	uint8_t *char_data = &font_data[c * 8];
-	for (int i = 0; i < 8; i++) {
-		l = 0;
-		for (int j = 8; j > 0; j--) {
-			l++;
-			if ((char_data[i] & (1 << (8 - j)))) {
-				VGA_putpixel(x + l, y + h, fg_color);
+void VGA_drawchar(uint32_t x, uint32_t y, uint32_t c, uint32_t fg_color,
+		uint32_t bg_color) {
+	//uint8_t *data = &font_data[c * 8];
+	uint8_t *data = get_font_data(c);
+	for (unsigned int i = 0; i < 8; i++) {
+		for (unsigned int j = 0; j < 8; j++) {
+			if ((1 & (data[j] >> i))) {
+				VGA_putpixel(i + x, j + y, fg_color);
 			} else
-				VGA_putpixel(x + l, y + h, bg_color);
+				VGA_putpixel(i + x, j + y, bg_color);
 		}
-		h++;
 	}
+	return;
 }
 
-void VGA_writestring(unsigned int x, unsigned int y, uint8_t *c,
-		unsigned int bg_color, unsigned int fg_color) {
+void VGA_print(uint32_t x, uint32_t y, uint8_t *s, uint32_t fg_color,
+		uint32_t bg_color) {
 	unsigned int i = 0;
-	while (c[i]) {
-		VGA_drawchar(i * 8 + x, y, c[i], bg_color, fg_color);
+	while (s[i]) {
+		VGA_drawchar(x + i * 8, y, s[i], fg_color, bg_color);
 		i++;
 	}
+	return;
 }

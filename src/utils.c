@@ -1,4 +1,6 @@
 #include <utils.h>
+#include <vga.h>
+#include <console.h>
 
 __inline unsigned char inb(unsigned short int __port) {
 	unsigned char _v;
@@ -16,25 +18,27 @@ __inline void outb(unsigned char __value, unsigned short int __port) {
 void itoa(char *buf, int base, int d) {
 	char *p = buf;
 	char *p1, *p2;
-	unsigned long ud = (unsigned)d;
+	unsigned long ud = (unsigned) d;
 	int divisor = 10;
 
 	/* If %d is specified and D is minus, put ‘-’ in the head. */
 	if (base == 'd' && d < 0) {
 		*p++ = '-';
 		buf++;
-		ud = (unsigned)-d;
+		ud = (unsigned) -d;
 	} else if (base == 'x') {
 		divisor = 16;
-	} else if(base == 'b') {
+	} else if (base == 'b') {
 		divisor = 2;
 	}
 	/* Divide UD by DIVISOR until UD == 0. */
 	do {
-		unsigned int remainder = ud % (unsigned)divisor;
+		unsigned int remainder = ud % (unsigned) divisor;
 
-		*p++ = (char)((remainder < 10) ? remainder + '0' : remainder + 'a' - 10);
-	} while (ud /= (unsigned)divisor);
+		*p++ =
+				(char) ((remainder < 10) ?
+						remainder + '0' : remainder + 'a' - 10);
+	} while (ud /= (unsigned) divisor);
 
 	/* Terminate BUF. */
 	*p = 0;
@@ -52,16 +56,70 @@ void itoa(char *buf, int base, int d) {
 }
 
 int oct2bin(unsigned char *str, int size) {
-    int n = 0;
-    unsigned char *c = str;
-    while (size-- > 0) {
-        n *= 8;
-        n += *c - '0';
-        c++;
-    }
-    return n;
+	int n = 0;
+	unsigned char *c = str;
+	while (size-- > 0) {
+		n *= 8;
+		n += *c - '0';
+		c++;
+	}
+	return n;
 }
 
-void print(unsigned char *str, unsigned int x, unsigned int y, uint64_t color) {
-	VGA_writestring(x, y, str, color << 32, color);
+/*  Format a string and print it on the screen, just like the libc
+ function printf. */
+void printf(const char *format, ...) {
+	char **arg = (char**) &format;
+	int c;
+	char buf[20];
+
+	arg++;
+
+	while ((c = *format++) != 0) {
+		if (c != '%') {
+			console_putchar(c);
+		}
+		else {
+			char *p, *p2;
+			int pad0 = 0, pad = 0;
+
+			c = *format++;
+			if (c == '0') {
+				pad0 = 1;
+				c = *format++;
+			}
+
+			if (c >= '0' && c <= '9') {
+				pad = c - '0';
+				c = *format++;
+			}
+
+			switch (c) {
+			case 'd':
+			case 'u':
+			case 'x':
+				itoa(buf, c, *((int*) arg++));
+				p = buf;
+				goto string;
+				break;
+
+			case 's':
+				p = *arg++;
+				if (!p)
+					p = "(null)";
+
+				string: for (p2 = p; *p2; p2++)
+					;
+				for (; p2 < p + pad; p2++)
+					console_putchar(pad0 ? '0' : ' ');
+				while (*p)
+					console_putchar(*p++);
+				break;
+
+			default:
+				console_putchar(*((int*) arg++));
+				break;
+			}
+		}
+	}
 }

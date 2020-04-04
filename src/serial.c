@@ -1,6 +1,6 @@
 #include <utils.h>
 #include <serial.h>
 
-char LC = *(COM1+LINE_CONTROL);
+char* LC = (char*)(COM1+LINE_CONTROL);
 
 

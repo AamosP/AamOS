@@ -1,7 +1,9 @@
 #ifndef FONT_H
 #define FONT_H
 
-unsigned char *font_data;
+#include <utils.h>
+
+char* get_font_data(uint32_t c);
 
 #endif
 

@@ -1,9 +1,5 @@
 CC := i386-elf-gcc
 
-ASMFILES := $(shell find -type f -name "\*.s")
-SRCFILES := $(shell find -type f -name "\*.c")
-OBJFILES := $(patsubst %.c,%.o,$(SRCFILES)) OBJFILES := $(patsubst %.s,%.o,$(ASMFILES))
-
 WARNINGS := -Wall -Wextra -pedantic -Wshadow -Wpointer-arith -Wcast-align \
             -Wwrite-strings -Wmissing-prototypes -Wmissing-declarations \
             -Wredundant-decls -Wnested-externs -Winline -Wno-long-long \
@@ -20,5 +16,5 @@ all: start.o kernel.o aamOS.elf
 %.o: %.s
 	$(CC) $(ASFLAGS) -c $< -o $@
 
-aamOS.elf: start.o kernel.o vga.o utils.o keyboard.o font.o
+aamOS.elf: start.o kernel.o vga.o utils.o keyboard.o font.o serial.o console.o
 	$(CC) -ffreestanding -nostdlib -g -T link.ld $? -o aamOS.elf -lgcc
