@@ -6,6 +6,7 @@
 #include <keyboard.h>
 #include <stddef.h>
 #include <console.h>
+#include <serial.h>
 
 void kernel_main(unsigned long magic, unsigned long addr);
 struct multiboot_tag* get_tag(uint32_t tag_type, unsigned long addr);
@@ -26,11 +27,12 @@ void kernel_main(unsigned long magic, unsigned long addr) {
 		return;
 	}
 
-	VGA_print(0, 0, (uint8_t*) "Hello!", 0x00ffffff, 0);
-
-	uint32_t s[] = {0x2503, 'h'};
-
-	VGA_print(0, 16, s, 0x00ffffff, 0);
+	init_serial();
+	unsigned char s = 'e';
+	while(s) {
+		write_serial(s);
+		VGA_drawchar(0, 0, s, 0x00ffffff, 0);
+	}
 }
 
 struct multiboot_tag* get_tag(uint32_t tag_type, unsigned long addr) {
