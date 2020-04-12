@@ -1,12 +1,13 @@
 CC := i386-elf-gcc
+AS := i386-elf-as
 
 WARNINGS := -Wall -Wextra -pedantic -Wshadow -Wpointer-arith -Wcast-align \
             -Wwrite-strings -Wmissing-prototypes -Wmissing-declarations \
             -Wredundant-decls -Wnested-externs -Winline -Wno-long-long \
             -Wconversion -Wstrict-prototypes
 
-CFLAGS := -ffreestanding -g -std=gnu99 $(WARNINGS) -I.
-ASFLAGS := -g -std=gnu99 $(WARNINGS) -I.
+CFLAGS := -nostdlib -ffreestanding -g -std=gnu99 $(WARNINGS) -I. -mno-red-zone -mgeneral-regs-only
+ASFLAGS := -nostdlib -Wall -I.
 
 all: start.o kernel.o aamOS.elf
 
@@ -14,7 +15,7 @@ all: start.o kernel.o aamOS.elf
 	$(CC) $(CFLAGS) -c $< -o $@
 
 %.o: %.s
-	$(CC) $(ASFLAGS) -c $< -o $@
+	$(AS) $(ASFLAGS) -c $< -o $@
 
-aamOS.elf: start.o kernel.o vga.o utils.o keyboard.o font.o serial.o console.o
-	$(CC) -ffreestanding -nostdlib -g -T link.ld $? -o aamOS.elf -lgcc
+aamOS.elf: kernel.o vga.o utils.o keyboard.o font.o serial.o console.o interrupt_handler.o gdt.o idt.o
+	$(CC) -ffreestanding -nostdlib -g -T link.ld $? start.s -o aamOS.elf -lgcc -mno-red-zone $(WARNINGS)

@@ -17,7 +17,6 @@ void kernel_main(unsigned long magic, unsigned long addr) {
 	tag = get_tag(MULTIBOOT_TAG_TYPE_FRAMEBUFFER, addr);
 	VGA_init((struct multiboot_tag_framebuffer*) tag);
 
-	/*  Am I booted by a Multiboot-compliant boot loader? */
 	if (magic != MULTIBOOT2_BOOTLOADER_MAGIC) {
 		VGA_print(0, 0, (uint8_t*) "Invalid magic number", 0x00ff0000, 0);
 		return;
@@ -28,10 +27,17 @@ void kernel_main(unsigned long magic, unsigned long addr) {
 	}
 
 	init_serial();
-	unsigned char s = 'e';
-	while(s) {
-		write_serial(s);
-		VGA_drawchar(0, 0, s, 0x00ffffff, 0);
+	char *s;
+	char kb;
+	char okb;
+	while (1) {
+		kb = read_kb();
+		if(kb != 0 && kb != okb) {
+			itoa(s, 'x', kb);
+			write_serial_str(s);
+			write_serial('\n');
+		}
+		okb = kb;
 	}
 }
 

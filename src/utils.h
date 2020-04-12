@@ -11,9 +11,12 @@ typedef signed int int32_t;
 typedef signed long long int64_t;
 
 unsigned char inb(unsigned short int __port);
-void outb(unsigned char __value, unsigned short int __port);
+void outb(uint16_t __port, uint8_t __value);
 void itoa(char *buf, int base, int d);
 int oct2bin(unsigned char *str, int size);
 void print(unsigned char* str, unsigned int x, unsigned int y, uint64_t color);
+uint32_t farpeekl(uint16_t sel, void* off);
+void farpokeb(uint16_t sel, void* off, uint8_t v);
+void io_wait(void);
 
 #endif

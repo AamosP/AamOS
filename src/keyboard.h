@@ -360,8 +360,6 @@
 #define SELF_TEST_FAILED 0xfc 0xfd
 #define RESEND 0xfe
 
-void init_kb(void);
-void read_kb(void);
-unsigned char kb_data;
+unsigned char read_kb(void);
 
 #endif

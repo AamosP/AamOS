@@ -13,7 +13,7 @@
 .set TAG_END, 0
 
 .text
-.globl start, _start
+.globl start, _start, gdt_flush, idt_load, isr_wrapper
 
 start:
 _start:
@@ -61,6 +61,28 @@ framebuffer_tag_end:
         //.short 0
         .long 8
 multiboot_header_end:
+.extern gp            // Says that 'gp' is in another file
+gdt_flush:
+    lgdt (gp)        // Load the GDT with our 'gp' which is a special pointer
+    mov $0x10, %ax    // 0x10 is the offset in the GDT to our data segment
+    mov %ds, %ax
+    mov %es, %ax
+    mov %fs, %ax
+    mov %gs, %ax
+    mov %ss, %ax
+    jmp flush2+0x08 // 0x08 is the offset to our code segment: Far jump!
+flush2:
+    ret               // Returns back to the C code!
+.extern idtp
+idt_load:
+    lidt (idtp)
+    ret
+isr_wrapper:
+    pushal
+    cld /* C code following the sysV ABI requires DF to be clear on function entry */
+    call interrupt_handler
+    popal
+    iret
 multiboot_entry:
 	movl $(stack + STACK_SIZE), %esp
 
@@ -73,17 +95,11 @@ multiboot_entry:
 
 	call kernel_main
 
-	pushl $halt_message
-	//call print
-
 l:	hlt
 	jmp l
-
-halt_message:
-	.asciz "Halted."
 
 	.comm stack, STACK_SIZE
 _edata:
 
-.section .bss
+.bss
 _end:

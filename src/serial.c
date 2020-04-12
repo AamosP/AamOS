@@ -19,6 +19,7 @@ static int serial_received() {
 char read_serial() {
 	while (serial_received() == 0)
 		;
+	VGA_print(0, 16, "Hi", 0x00ffffff, 0);
 	return inb(PORT);
 }
 
@@ -29,7 +30,14 @@ static int is_transmit_empty() {
 void write_serial(char a) {
 	while (is_transmit_empty() == 0)
 		;
-	VGA_print(0, 16, "Hi", 0x00ffffff, 0);
 
-	outb(PORT, '0');
+	outb(PORT, a);
+}
+
+void write_serial_str(char* a) {
+	int i = 0;
+	while(a[i]) {
+		write_serial(a[i]);
+		i++;
+	}
 }

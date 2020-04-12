@@ -3,12 +3,9 @@
 #include <font.h>
 #include <stddef.h>
 
-void init_kb() {
-	kb_data = 0;
-	return;
-}
+static unsigned char kb_data = 0;
 
-void read_kb() {
+unsigned char read_kb() {
 	unsigned char c = inb(KB_PORT);
 	if (c != kb_data) {
 		if (c < 0x80) {
@@ -19,5 +16,5 @@ void read_kb() {
 //		if (kb_data > 0x80)
 //			kb_data = 0;
 	}
-	return;
+	return kb_data;
 }

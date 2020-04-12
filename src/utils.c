@@ -8,7 +8,7 @@ __inline unsigned char inb(unsigned short int __port) {
 	return _v;
 }
 
-__inline void outb(unsigned char __value, unsigned short int __port) {
+__inline void outb(uint16_t __port, uint8_t __value) {
 	__asm__ __volatile__ ("outb %b0,%w1": :"a" (__value), "Nd" (__port));
 }
 
@@ -122,4 +122,33 @@ void printf(const char *format, ...) {
 			}
 		}
 	}
+}
+
+inline uint32_t farpeekl(uint16_t sel, void* off)
+{
+    uint32_t ret;
+    asm ( "push %%fs\n\t"
+          "mov  %1, %%fs\n\t"
+          "mov  %%fs:(%2), %0\n\t"
+          "pop  %%fs"
+          : "=r"(ret) : "g"(sel), "r"(off) );
+    return ret;
+}
+
+inline void farpokeb(uint16_t sel, void* off, uint8_t v)
+{
+    asm ( "push %%fs\n\t"
+          "mov  %0, %%fs\n\t"
+          "movb %2, %%fs:(%1)\n\t"
+          "pop %%fs"
+          : : "g"(sel), "r"(off), "r"(v) );
+    /* TODO: Should "memory" be in the clobber list here? */
+}
+
+inline void io_wait()
+{
+    /* Port 0x80 is used for 'checkpoints' during POST. */
+    /* The Linux kernel seems to think it is free for use :-/ */
+    asm volatile ( "outb %%al, $0x80" : : "a"(0) );
+    /* %%al instead of %0 makes no difference.  TODO: does the register need to be zeroed? */
 }
