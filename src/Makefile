@@ -17,5 +17,5 @@ all: start.o kernel.o aamOS.elf
 %.o: %.s
 	$(AS) $(ASFLAGS) -c $< -o $@
 
-aamOS.elf: kernel.o vga.o utils.o keyboard.o font.o serial.o console.o interrupt_handler.o gdt.o idt.o
+aamOS.elf: kernel.o vga.o utils.o keyboard.o font.o serial.o console.o gdt.o idt.o isrs.o irq.o timer.o
 	$(CC) -ffreestanding -nostdlib -g -T link.ld $? start.s -o aamOS.elf -lgcc -mno-red-zone $(WARNINGS)

@@ -7,6 +7,7 @@
 #include <stddef.h>
 #include <console.h>
 #include <serial.h>
+#include <int.h>
 
 void kernel_main(unsigned long magic, unsigned long addr);
 struct multiboot_tag* get_tag(uint32_t tag_type, unsigned long addr);
@@ -27,18 +28,11 @@ void kernel_main(unsigned long magic, unsigned long addr) {
 	}
 
 	init_serial();
-	char *s;
-	char kb;
-	char okb;
-	while (1) {
-		kb = read_kb();
-		if(kb != 0 && kb != okb) {
-			itoa(s, 'x', kb);
-			write_serial_str(s);
-			write_serial('\n');
-		}
-		okb = kb;
-	}
+	gdt_install();
+	idt_install();
+	isrs_install();
+	irq_install();
+	timer_install();
 }
 
 struct multiboot_tag* get_tag(uint32_t tag_type, unsigned long addr) {

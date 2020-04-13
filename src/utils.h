@@ -18,5 +18,6 @@ void print(unsigned char* str, unsigned int x, unsigned int y, uint64_t color);
 uint32_t farpeekl(uint16_t sel, void* off);
 void farpokeb(uint16_t sel, void* off, uint8_t v);
 void io_wait(void);
+void* memset(void* bufptr, int value, int size);
 
 #endif
