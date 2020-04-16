@@ -1,8 +1,4 @@
-#include <vga.h>
-#include <multiboot2.h>
-#include <utils.h>
-#include <font.h>
-#include <stddef.h>
+#include <system.h>
 
 static struct multiboot_tag_framebuffer *tagfb;
 static uint8_t *fb;
@@ -47,7 +43,6 @@ void VGA_putpixel(uint32_t x, uint32_t y, uint32_t color) {
 	}
 		break;
 	}
-	return;
 }
 
 void VGA_drawrect(uint32_t x, uint32_t y, uint32_t width, uint32_t height,
@@ -57,11 +52,9 @@ void VGA_drawrect(uint32_t x, uint32_t y, uint32_t width, uint32_t height,
 			VGA_putpixel(i + x, j + y, color);
 		}
 	}
-	return;
 }
 
-void VGA_drawchar(uint32_t x, uint32_t y, uint32_t c, uint32_t fg_color,
-		uint32_t bg_color) {
+void VGA_drawchar(uint32_t x, uint32_t y, uint32_t c, uint32_t fg_color, uint32_t bg_color) {
 	//uint8_t *data = &font_data[c * 8];
 	uint8_t *data = get_font_data(c);
 	for (unsigned int i = 0; i < 8; i++) {
@@ -72,15 +65,16 @@ void VGA_drawchar(uint32_t x, uint32_t y, uint32_t c, uint32_t fg_color,
 				VGA_putpixel(i + x, j + y, bg_color);
 		}
 	}
-	return;
 }
 
-void VGA_print(uint32_t x, uint32_t y, uint8_t *s, uint32_t fg_color,
-		uint32_t bg_color) {
+void VGA_print(uint32_t x, uint32_t y, uint8_t *s, uint32_t fg_color, uint32_t bg_color) {
 	unsigned int i = 0;
 	while (s[i]) {
 		VGA_drawchar(x + i * 8, y, s[i], fg_color, bg_color);
 		i++;
 	}
-	return;
+}
+
+void VGA_clear() {
+	VGA_drawrect(0, 0, Xres, Yres, 0);
 }

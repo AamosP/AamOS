@@ -1,9 +1,7 @@
-#include <utils.h>
-#include <vga.h>
-#include <console.h>
+#include <system.h>
 
-__inline unsigned char inb(unsigned short int __port) {
-	unsigned char _v;
+__inline uint8_t inb(uint16_t __port) {
+	uint8_t _v;
 	__asm__ __volatile__ ("inb %w1,%0":"=a" (_v):"Nd" (__port));
 	return _v;
 }
@@ -33,7 +31,7 @@ void itoa(char *buf, int base, int d) {
 	}
 	/* Divide UD by DIVISOR until UD == 0. */
 	do {
-		unsigned int remainder = ud % (unsigned) divisor;
+		uint32_t remainder = ud % (unsigned) divisor;
 
 		*p++ =
 				(char) ((remainder < 10) ?
@@ -55,9 +53,9 @@ void itoa(char *buf, int base, int d) {
 	}
 }
 
-int oct2bin(unsigned char *str, int size) {
+int oct2bin(uint8_t *str, int size) {
 	int n = 0;
-	unsigned char *c = str;
+	uint8_t *c = str;
 	while (size-- > 0) {
 		n *= 8;
 		n += *c - '0';
@@ -68,16 +66,18 @@ int oct2bin(unsigned char *str, int size) {
 
 /*  Format a string and print it on the screen, just like the libc
  function printf. */
-void printf(const char *format, ...) {
+int printf(const char *format, ...) {
 	char **arg = (char**) &format;
 	int c;
 	char buf[20];
+	int n = 0;
 
 	arg++;
 
 	while ((c = *format++) != 0) {
 		if (c != '%') {
 			console_putchar(c);
+			n++;
 		}
 		else {
 			char *p, *p2;
@@ -88,12 +88,10 @@ void printf(const char *format, ...) {
 				pad0 = 1;
 				c = *format++;
 			}
-
 			if (c >= '0' && c <= '9') {
 				pad = c - '0';
 				c = *format++;
 			}
-
 			switch (c) {
 			case 'd':
 			case 'u':
@@ -107,7 +105,11 @@ void printf(const char *format, ...) {
 				p = *arg++;
 				if (!p)
 					p = "(null)";
-
+				int i = 0;
+				while(p[i]) {
+					n++;
+					i++;
+				}
 				string: for (p2 = p; *p2; p2++)
 					;
 				for (; p2 < p + pad; p2++)
@@ -122,6 +124,7 @@ void printf(const char *format, ...) {
 			}
 		}
 	}
+	return n;
 }
 
 inline uint32_t farpeekl(uint16_t sel, void* off)
@@ -154,8 +157,24 @@ inline void io_wait()
 }
 
 void* memset(void* bufptr, int value, int size) {
-	unsigned char* buf = (unsigned char*) bufptr;
+	uint8_t* buf = (uint8_t*) bufptr;
 	for (int i = 0; i < size; i++)
-		buf[i] = (unsigned char) value;
+		buf[i] = (uint8_t) value;
 	return bufptr;
+}
+
+int puts(const char* string) {
+	return printf("%s", string);
+}
+
+void putch(const char ch) {
+	console_putchar(ch);
+}
+
+int kerror(const char* str) {
+	uint32_t tfg = fg_col;
+	fg_col = RED;
+	int r = printf("%s\n", str);
+	fg_col = tfg;
+	return r;
 }

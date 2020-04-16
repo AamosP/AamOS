@@ -1,15 +1,21 @@
-#include <utils.h>
-#include <serial.h>
-#include <vga.h>
+#include <system.h>
 
-void init_serial() {
-	outb(PORT + 1, 0x00);    // Disable all interrupts
-	outb(PORT + 3, 0x80);    // Enable DLAB (set baud rate divisor)
-	outb(PORT + 0, 0x01);    // Set divisor to 1 (lo byte) 38400 baud
-	outb(PORT + 1, 0x00);    //                  (hi byte)
-	outb(PORT + 3, 0x03);    // 8 bits, no parity, one stop bit
-	outb(PORT + 2, 0xC7);    // Enable FIFO, clear them, with 14-byte threshold
-	outb(PORT + 4, 0x0B);    // IRQs enabled, RTS/DSR set
+static uint16_t PORT;
+
+void init_serial(uint16_t port) {
+	if (port == COM1 | port == COM2 | port == COM3 | port == COM4) {
+		PORT = port;
+		outb(PORT + 1, 0x00);    // Disable all interrupts
+		outb(PORT + 3, 0x80);    // Enable DLAB (set baud rate divisor)
+		outb(PORT + 0, 0x01);    // Set divisor to 1 (lo byte) 38400 baud
+		outb(PORT + 1, 0x00);    //                  (hi byte)
+		outb(PORT + 3, 0x03);    // 8 bits, no parity, one stop bit
+		outb(PORT + 2, 0xC7); // Enable FIFO, clear them, with 14-byte threshold
+		outb(PORT + 4, 0x0B);    // IRQs enabled, RTS/DSR set
+	} else {
+		printf("Invalid Port: 0x%x\n", port);
+		return;
+	}
 }
 
 static int serial_received() {
@@ -19,7 +25,6 @@ static int serial_received() {
 char read_serial() {
 	while (serial_received() == 0)
 		;
-	VGA_print(0, 16, "Hi", 0x00ffffff, 0);
 	return inb(PORT);
 }
 
@@ -34,9 +39,9 @@ void write_serial(char a) {
 	outb(PORT, a);
 }
 
-void write_serial_str(char* a) {
+void write_serial_str(char *a) {
 	int i = 0;
-	while(a[i]) {
+	while (a[i]) {
 		write_serial(a[i]);
 		i++;
 	}

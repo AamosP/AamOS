@@ -6,3 +6,7 @@ aamOS.iso
 tmp/
 /aamOS_live.iso
 /.project
+/d
+/serial
+/snapshot.bmp
+/start.o
