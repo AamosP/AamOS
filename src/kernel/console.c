@@ -1,58 +1,71 @@
-#include <system.h>
+#include <aamOS/kernel.h>
 
 static uint32_t cols;
 static uint32_t rows;
 
-static uint32_t col;
-static uint32_t row;
+static uint32_t index = 0;
+static uint32_t row = 0;
 
-static uint8_t *data;
+static uint32_t fg_col;
+static uint32_t bg_col;
 
-uint32_t fg_col;
-uint32_t bg_col;
+uint8_t *c_data;
+
+uint64_t console_getcolor(uint32_t fg, uint32_t bg) {
+	fg = fg_col;
+	bg = bg_col;
+	uint64_t c = (((uint64_t) fg) << 32) & (bg & 0x00000000ffffffff);
+	return c;
+}
+
+void console_setcolor(uint32_t fg, uint32_t bg) {
+	fg_col = fg;
+	bg_col = bg;
+}
 
 void console_init(struct multiboot_tag_framebuffer *tag, uint32_t fg,
 		uint32_t bg) {
 	VGA_init(tag);
 	cols = tag->common.framebuffer_width / 8;
 	rows = tag->common.framebuffer_height / 8;
-	col = 0;
-	row = 0;
+	index = 0;
 	fg_col = fg;
 	bg_col = bg;
-	console_clear();
 }
 
-void console_clear() {
-	for (int i = 0; i < (cols); i++) {
-		for (int j = 0; j < (rows); j++) {
-			VGA_drawrect(i * 8, j * 8, 8, 8, bg_col);
-		}
+void console_scroll() {
+	for(int i = 0; i < 8; i++) {
+		VGA_scroll('u');
 	}
-	col = 0;
-	row = 0;
+	for (uint32_t i = 0; i < cols; i++) {
+		c_data[i] = 0;
+	}
+	index = 0;
 }
 
 void console_putchar(char c) {
-	if (col >= cols) {
-		col = 0;
-		row++;
+	if (index >= (cols-1)) {
+		VGA_drawchar(8 * index, 8 * (rows - 1), 0, fg_col, bg_col);
+		console_scroll();
 	}
-	if (row >= rows) {
-		console_clear();
-		row = 0;
-		col = 0;
-	}
-	if (c == '\n' | c == '\r') {
-		row++;
-		if (row >= rows) {
-			console_clear();
-			row = 0;
+	if ((c == '\n') | (c == '\r')) {
+		VGA_drawchar(8 * index, 8 * (rows - 1), 0, fg_col, bg_col);
+		console_scroll();
+	} else if (c == '\b') {
+		if (index > 0) {
+			VGA_drawchar(8 * index, 8 * (rows - 1), 0, fg_col, bg_col);
+			index--;
+			c_data[index] = 0;
+			VGA_drawchar(8 * index, 8 * (rows - 1), 0, fg_col, bg_col);
 		}
-		col = 0;
+	} else if (c == '\t') {
+		VGA_drawchar(8 * index, 8 * (rows - 1), 0, fg_col, bg_col);
+		c_data[index] = '\t';
+		index += 4;
 	} else {
-		VGA_drawchar(8 * col, 8 * row, c, fg_col, bg_col);
-		col++;
+		VGA_drawchar(8 * index, 8 * (rows - 1), (uint32_t) c, fg_col, bg_col);
+		c_data[index] = c;
+		index++;
 	}
 }
 
