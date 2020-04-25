@@ -1,3 +1,6 @@
+/*******************************************************************************
+ * Copyright (c) 2020 Aamos Pernu.
+ *******************************************************************************/
 #include <aamOS/kernel.h>
 
 uint8_t font_data[0x900] = {
@@ -644,4 +647,5 @@ uint8_t* get_font_data(uint32_t c) {
 		return &font_data[c * 8];
 	if (c >= 0x390 && c <= 0x3c9)
 		return &fd_greek[(c-0x390)*8];
+	return &font_data[0];
 }

@@ -1,8 +1,11 @@
 /*******************************************************************************
  * Copyright (c) 2020 Aamos Pernu.
  *******************************************************************************/
-#define sti() __asm__ ("sti"::)
-#define cli() __asm__ ("cli"::)
-#define nop() __asm__ ("nop"::)
+#ifndef _MEMORY_H
+#define _MEMORY_H
 
-#define iret() __asm__ ("iret"::)
+#include <sys/types.h>
+
+void setupPaging(void);
+
+#endif

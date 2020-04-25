@@ -35,7 +35,16 @@ framebuffer_tag_end:
 	;dw 0
 	dd 8
 multiboot_header_end:
+addr:
+	dd 0
+magic:
+	dd 0
 multiboot_entry:
+;	push 0x3f8
+;	call init_serial
+;	push '1'
+;	call write_serial
+
 	mov esp, stack_top
 
 	push 0
@@ -43,16 +52,14 @@ multiboot_entry:
 
 	push ebx
 	push eax
-
 	call kernel_main
 
-	hlt
+h:	hlt
 	jmp $
 
 stack_bottom:
 	resb STACK_SIZE
 stack_top:
-
 gdt:
 	dq 0x0000000000000000
 	dq 0x00c09a00000007ff
@@ -76,59 +83,146 @@ reload_CS:
 	mov ss, ax
 	ret
 
+%macro ISR_NOERRCODE 1			; define a macro, taking one parameter
+  global isr%1			; %1 accesses the first parameter.
+  extern isr%1_handler
+  isr%1:
+	cli
+	jmp isr%1_handler
+%endmacro
+
+%macro ISR_ERRCODE 1
+  global isr%1
+  extern isr%1_handler
+  isr%1:
+	cli
+	jmp isr%1_handler
+%endmacro
+
+; This macro creates a stub for an IRQ - the first parameter is
+; the IRQ number, the second is the ISR number it is remapped to
+%macro IRQ 1
+  global irq%1
+  extern irq%1_handler
+  irq%1:
+	cli
+	call irq%1_handler
+	sti
+	iret
+%endmacro
+
+ISR_NOERRCODE  0
+ISR_NOERRCODE  1
+ISR_NOERRCODE  2
+ISR_NOERRCODE  3
+ISR_NOERRCODE  4
+ISR_NOERRCODE  5
+ISR_NOERRCODE  6
+ISR_NOERRCODE  7
+ISR_ERRCODE    8
+ISR_NOERRCODE  9
+ISR_ERRCODE   10
+ISR_ERRCODE   11
+ISR_ERRCODE   12
+ISR_ERRCODE   13
+ISR_ERRCODE   14
+ISR_NOERRCODE 15
+ISR_NOERRCODE 16
+ISR_NOERRCODE 17
+ISR_NOERRCODE 18
+ISR_NOERRCODE 19
+ISR_NOERRCODE 20
+ISR_NOERRCODE 21
+ISR_NOERRCODE 22
+ISR_NOERRCODE 23
+ISR_NOERRCODE 24
+ISR_NOERRCODE 25
+ISR_NOERRCODE 26
+ISR_NOERRCODE 27
+ISR_NOERRCODE 28
+ISR_NOERRCODE 29
+ISR_NOERRCODE 30
+ISR_NOERRCODE 31
+
+IRQ  0
+IRQ  1
+IRQ  2
+IRQ  3
+IRQ  4
+IRQ  5
+IRQ  6
+IRQ  7
+IRQ  8
+IRQ  9
+IRQ 10
+IRQ 11
+IRQ 12
+IRQ 13
+IRQ 14
+IRQ 15
+
+extern isr_handler
+; This is our common ISR stub. It saves the processor state, sets
+; up for kernel mode segments, calls the C-level fault handler,
+; and finally restores the stack frame.
+isr_common_stub:
+	pusha			; Pushes edi, esi, ebp, esp, ebx, edx, edx, eax
+
+	mov ax, ds		; Lower 16-bits of eax = ds.
+	push eax		; save the data segment descriptor
+
+	mov ax, 0x10		; load the kernel data segment descriptor
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+
+	call isr_handler
+
+	pop eax			; reload the original data segment descriptor
+	mov ds, ax
+	mov es, ax
+	mov fs, ax
+	mov gs, ax
+
+	popa			; Pops edi, esi, ebp...
+	add esp, 8		; Cleans up the pushed error code and pushed ISR number
+	sti
+	iret			; pops 5 things at once, CS, EIP, EFLAGS, SS, and ESP
+
+;extern irq_handler
+
+; This is our common IRQ stub. It saves the processor state, sets
+; up for kernel mode segments, calls the C-level fault handler,
+; and finally restores the stack frame.
+;irq_common_stub:
+;	pusha			; Pushes edi, esi, ebp, esp, ebx, edx, ecx, eax
+;
+;	mov ax, ds		; Lower 16 bits of eax = ds.
+;	push eax		; save the data segment descriptor
+;
+;	mov ax, 0x10		; load the kernel data segment descriptor.
+;	mov ds, ax
+;	mov es, ax
+;	mov fs, ax
+;	mov gs, ax
+;
+;	call irq_handler
+;
+;	pop ebx			; reload the original data segment descriptor
+;	mov ds, bx
+;	mov es, bx
+;	mov fs, bx
+;	mov gs, bx
+;
+;	popa			; Pops edi, esi, ebp, esp, ebx, edx, ecx, eax
+;	add esp, 8		; Cleans up the pushed error code and pushed IRS number
+;	sti
+;	iret			; pops 5 things at once: CS, EIP, EFLAGS, SS, and ESP
+
 global loadIdt
 loadIdt:
 	mov eax, [esp + 4]
 	lidt [eax]
 	ret
 
-extern irq0_handler,irq1_handler,irq2_handler,irq3_handler,irq4_handler,irq5_handler,irq6_handler,irq7_handler,irq8_handler,irq9_handler,irq10_handler,irq11_handler,irq12_handler,irq13_handler,irq14_handler,irq15_handler
-global irq0,irq1,irq2,irq3,irq4,irq5,irq6,irq7,irq8,irq9,irq10,irq11,irq12,irq13,irq14,irq15
-irq0:
-	call irq0_handler
-	iret
-irq1:
-	call irq1_handler
-	iret
-irq2:
-	call irq2_handler
-	iret
-irq3:
-	call irq3_handler
-	iret
-irq4:
-	call irq4_handler
-	iret
-irq5:
-	call irq5_handler
-	iret
-irq6:
-	call irq6_handler
-	iret
-irq7:
-	call irq7_handler
-	iret
-irq8:
-	call irq8_handler
-	iret
-irq9:
-	call irq9_handler
-	iret
-irq10:
-	call irq10_handler
-	iret
-irq11:
-	call irq11_handler
-	iret
-irq12:
-	call irq12_handler
-	iret
-irq13:
-	call irq13_handler
-	iret
-irq14:
-	call irq14_handler
-	iret
-irq15:
-	call irq15_handler
-	iret

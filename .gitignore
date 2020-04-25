@@ -10,3 +10,7 @@ tmp/
 /serial
 /snapshot.bmp
 /start.o
+/build/
+/.eclipse-pmd
+/.cproject
+/bochs.log

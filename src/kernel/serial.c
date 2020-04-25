@@ -1,6 +1,9 @@
+/*******************************************************************************
+ * Copyright (c) 2020 Aamos Pernu.
+ *******************************************************************************/
 #include <aamOS/kernel.h>
 #include <asm/io.h>
-#include <printf.h>
+#include <stdio.h>
 
 static uint16_t PORT;
 

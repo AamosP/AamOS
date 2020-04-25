@@ -1,3 +1,6 @@
+/*******************************************************************************
+ * Copyright (c) 2020 Aamos Pernu.
+ *******************************************************************************/
 #include <stdarg.h>
 #include <string.h>
 #include <printf.h>
@@ -85,7 +88,7 @@ static char* number(char *str, int num, int base, int size, int precision,
 	return str;
 }
 
-int vsprintf(char *buf, const char *fmt, va_list args) {
+int __vsprintf(char *buf, const char *fmt, va_list args) {
 	int len;
 	int i;
 	char *str;
@@ -223,14 +226,20 @@ int vsprintf(char *buf, const char *fmt, va_list args) {
 
 		default:
 			if (*fmt != '%')
+			  {
 				*str++ = '%';
+			  }
 			if (*fmt)
+			  {
 				*str++ = *fmt;
-			else
+			  } else
+			    {
 				--fmt;
+			    }
 			break;
 		}
 	}
 	*str = '\0';
 	return str - buf;
 }
+extern __typeof (__vsprintf) vsprintf __attribute__ ((alias ("__vsprintf")));

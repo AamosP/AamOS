@@ -1,533 +1,584 @@
+/*******************************************************************************
+ * Copyright (c) 2020 IBM Corporation and others.
+ *
+ * This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License 2.0
+ * which accompanies this distribution, and is available at
+ * https://www.eclipse.org/legal/epl-2.0/
+ *
+ * SPDX-License-Identifier: EPL-2.0
+ *
+ * Contributors:
+ *     IBM Corporation - initial API and implementation
+ *******************************************************************************/
 #include <asm/io.h>
 #include <asm/system.h>
+#include <idt.h>
+#include <aamOS/kernel.h>
 
-void idt_init(void);
+static struct IDT_entry IDT[256];
 
-struct IDT_entry {
-	unsigned short int offset_lowerbits;
-	unsigned short int selector;
-	unsigned char zero;
-	unsigned char type_attr;
-	unsigned short int offset_higherbits;
-};
+/* Set the value of one IDT entry. */
+static void
+idt_set_gate (uint8_t num, uint32_t offset, uint16_t sel, uint8_t flags)
+{
+  IDT[num].offset_lo = offset & 0xFFFF;
+  IDT[num].offset_hi = (offset >> 16) & 0xFFFF;
 
-struct IDT_entry IDT[256];
-
-int isr0(void) {
-	write_serial_str("Divide-by-zero Exception\n");
-	iret();
+  IDT[num].selector = sel;
+  IDT[num].zero = 0;
+  /* We must uncomment the OR below when we get to using user-mode.
+   // It sets the interrupt gate's privilege level to 3. */
+  IDT[num].type_attr = flags /* | 0x60 */;
 }
 
-int isr1(void) {
-	write_serial_str("Debug Exception\n");
-	iret();
+void
+idt_init (void)
+{
+  extern int
+  loadIdt (unsigned long*);
+  extern int
+  irq0 (void);
+  extern int
+  irq1 (void);
+  extern int
+  irq2 (void);
+  extern int
+  irq3 (void);
+  extern int
+  irq4 (void);
+  extern int
+  irq5 (void);
+  extern int
+  irq6 (void);
+  extern int
+  irq7 (void);
+  extern int
+  irq8 (void);
+  extern int
+  irq9 (void);
+  extern int
+  irq10 (void);
+  extern int
+  irq11 (void);
+  extern int
+  irq12 (void);
+  extern int
+  irq13 (void);
+  extern int
+  irq14 (void);
+  extern int
+  irq15 (void);
+
+  extern int
+  isr0 (void);
+  extern int
+  isr1 (void);
+  extern int
+  isr2 (void);
+  extern int
+  isr3 (void);
+  extern int
+  isr4 (void);
+  extern int
+  isr5 (void);
+  extern int
+  isr6 (void);
+  extern int
+  isr7 (void);
+  extern int
+  isr8 (void);
+  extern int
+  isr9 (void);
+  extern int
+  isr10 (void);
+  extern int
+  isr11 (void);
+  extern int
+  isr12 (void);
+  extern int
+  isr13 (void);
+  extern int
+  isr14 (void);
+  extern int
+  isr15 (void);
+  extern int
+  isr16 (void);
+  extern int
+  isr17 (void);
+  extern int
+  isr18 (void);
+  extern int
+  isr19 (void);
+  extern int
+  isr20 (void);
+  extern int
+  isr21 (void);
+  extern int
+  isr22 (void);
+  extern int
+  isr23 (void);
+  extern int
+  isr24 (void);
+  extern int
+  isr25 (void);
+  extern int
+  isr26 (void);
+  extern int
+  isr27 (void);
+  extern int
+  isr28 (void);
+  extern int
+  isr29 (void);
+  extern int
+  isr30 (void);
+  extern int
+  isr31 (void);
+
+  unsigned long idt_address;
+  unsigned long idt_ptr[2];
+
+  /* remapping the PIC */
+  outb(0x20, 0x11);
+  outb(0xA0, 0x11);
+  outb(0x21, 0x20);
+  outb(0xA1, 40);
+  outb(0x21, 0x04);
+  outb(0xA1, 0x02);
+  outb(0x21, 0x01);
+  outb(0xA1, 0x01);
+  outb(0x21, 0x0);
+  outb(0xA1, 0x0);
+
+  idt_set_gate (0, (uint32_t) isr0, 0x08, 0x8e);
+  idt_set_gate (1, (uint32_t) isr1, 0x08, 0x8e);
+  idt_set_gate (2, (uint32_t) isr2, 0x08, 0x8e);
+  idt_set_gate (3, (uint32_t) isr3, 0x08, 0x8e);
+  idt_set_gate (4, (uint32_t) isr4, 0x08, 0x8e);
+  idt_set_gate (5, (uint32_t) isr5, 0x08, 0x8e);
+  idt_set_gate (6, (uint32_t) isr6, 0x08, 0x8e);
+  idt_set_gate (7, (uint32_t) isr7, 0x08, 0x8e);
+  idt_set_gate (8, (uint32_t) isr8, 0x08, 0x8e);
+  idt_set_gate (9, (uint32_t) isr9, 0x08, 0x8e);
+  idt_set_gate (10, (uint32_t) isr10, 0x08, 0x8e);
+  idt_set_gate (11, (uint32_t) isr11, 0x08, 0x8e);
+  idt_set_gate (12, (uint32_t) isr12, 0x08, 0x8e);
+  idt_set_gate (13, (uint32_t) isr13, 0x08, 0x8e);
+  idt_set_gate (14, (uint32_t) isr14, 0x08, 0x8e);
+  idt_set_gate (15, (uint32_t) isr15, 0x08, 0x8e);
+  idt_set_gate (16, (uint32_t) isr16, 0x08, 0x8e);
+  idt_set_gate (17, (uint32_t) isr17, 0x08, 0x8e);
+  idt_set_gate (18, (uint32_t) isr18, 0x08, 0x8e);
+  idt_set_gate (19, (uint32_t) isr19, 0x08, 0x8e);
+  idt_set_gate (20, (uint32_t) isr20, 0x08, 0x8e);
+  idt_set_gate (21, (uint32_t) isr21, 0x08, 0x8e);
+  idt_set_gate (22, (uint32_t) isr22, 0x08, 0x8e);
+  idt_set_gate (23, (uint32_t) isr23, 0x08, 0x8e);
+  idt_set_gate (24, (uint32_t) isr24, 0x08, 0x8e);
+  idt_set_gate (25, (uint32_t) isr25, 0x08, 0x8e);
+  idt_set_gate (26, (uint32_t) isr26, 0x08, 0x8e);
+  idt_set_gate (27, (uint32_t) isr27, 0x08, 0x8e);
+  idt_set_gate (28, (uint32_t) isr28, 0x08, 0x8e);
+  idt_set_gate (29, (uint32_t) isr29, 0x08, 0x8e);
+  idt_set_gate (30, (uint32_t) isr30, 0x08, 0x8e);
+  idt_set_gate (31, (uint32_t) isr31, 0x08, 0x8e);
+
+  idt_set_gate (32, (uint32_t) irq0, 0x08, 0x8e);
+  idt_set_gate (33, (uint32_t) irq1, 0x08, 0x8e);
+  idt_set_gate (34, (uint32_t) irq2, 0x08, 0x8e);
+  idt_set_gate (35, (uint32_t) irq3, 0x08, 0x8e);
+  idt_set_gate (36, (uint32_t) irq4, 0x08, 0x8e);
+  idt_set_gate (37, (uint32_t) irq5, 0x08, 0x8e);
+  idt_set_gate (38, (uint32_t) irq6, 0x08, 0x8e);
+  idt_set_gate (39, (uint32_t) irq7, 0x08, 0x8e);
+  idt_set_gate (40, (uint32_t) irq8, 0x08, 0x8e);
+  idt_set_gate (41, (uint32_t) irq9, 0x08, 0x8e);
+  idt_set_gate (42, (uint32_t) irq10, 0x08, 0x8e);
+  idt_set_gate (43, (uint32_t) irq11, 0x08, 0x8e);
+  idt_set_gate (44, (uint32_t) irq12, 0x08, 0x8e);
+  idt_set_gate (45, (uint32_t) irq13, 0x08, 0x8e);
+  idt_set_gate (46, (uint32_t) irq14, 0x08, 0x8e);
+  idt_set_gate (47, (uint32_t) irq15, 0x08, 0x8e);
+
+  /* fill the IDT descriptor */
+  idt_address = (unsigned long) IDT;
+  idt_ptr[0] = (sizeof(struct IDT_entry) * 256)
+      + ((idt_address & 0xffff) << 16);
+  idt_ptr[1] = idt_address >> 16;
+
+  loadIdt (idt_ptr);
+
 }
 
-int isr2(void) {
-	write_serial_str("Non-maskable Interrupt Exception\n");
-	iret();
+static char *isr_messages[32] =
+  { "#DE", "#DB", "Non-maskable Interrupt", "#BP", "#OF", "#BR", "#UD", "#NM",
+      "#DF", "Coprocessor Segment Overrun", "#TD", "#NP", "#SS", "#GP", "#PF",
+      "Reserved", "#MF", "#AC", "#MC", "#XM", "#VE", "Reserved", "Reserved",
+      "Reserved", "Reserved", "Reserved", "Reserved", "Reserved", "Reserved",
+      "Reserved", "#SX", "Reserved" };
+
+void
+isr0_handler (void)
+{
+  write_serial_str ("#DE\n");
+  iret();
 }
 
-int isr3(void) {
-	write_serial_str("Breakpoint Exception\n");
-	iret();
+void
+isr1_handler (void)
+{
+  write_serial_str ("#DB\n");
+  iret();
 }
 
-int isr4(void) {
-	write_serial_str("Overflow Exception\n");
-	iret();
+void
+isr2_handler (void)
+{
+  write_serial_str ("Non-maskable Interrupt\n");
+  iret();
 }
 
-int isr5(void) {
-	write_serial_str("Bound Range Exceeded\n");
-	iret();
+void
+isr3_handler (void)
+{
+  write_serial_str ("#BP\n");
+  iret();
 }
 
-int isr6(void) {
-	write_serial_str("Invalid Opcode\n");
-	iret();
+void
+isr4_handler (void)
+{
+  write_serial_str ("#OF\n");
+  iret();
 }
 
-int isr7(void) {
-	write_serial_str("Device Not Available\n");
-	iret();
+void
+isr5_handler (void)
+{
+  write_serial_str ("#BR\n");
+  iret();
 }
 
-int isr8(void) {
-	write_serial_str("Double Fault\n");
-	iret();
+void
+isr6_handler (void)
+{
+  write_serial_str ("#UD\n");
+  iret();
 }
 
-int isr9(void) {
-	write_serial_str("Coprocessor Segment Overrun Exception\n");
-	iret();
+void
+isr7_handler (void)
+{
+  write_serial_str ("#NN\n");
+  iret();
 }
 
-int isr10(void) {
-	write_serial_str("Invalid TSS Exception\n");
-	iret();
+void
+isr8_handler (int error)
+{
+  write_serial_str ("#DF(");
+  char *s;
+  itoa (s, 'd', error);
+  write_serial_str (s);
+  write_serial_str (")\n");
+  iret();
 }
 
-int isr11(void) {
-	write_serial_str("Segment Not Present Exception\n");
-	iret();
+void
+isr9_handler (void)
+{
+  write_serial_str ("Coprocessor Segment Overrun");
+  iret();
 }
 
-int isr12(void) {
-	write_serial_str("Stack-Segment Fault\n");
-	iret();
+void
+isr10_handler (int error)
+{
+  write_serial_str ("#TD(");
+  char *s;
+  itoa (s, 'd', error);
+  write_serial_str (s);
+  write_serial_str (")\n");
+  iret();
 }
 
-int isr13(void) {
-	write_serial_str("General Protection Fault\n");
-	iret();
+void
+isr11_handler (int error)
+{
+  write_serial_str ("#NP(");
+  char *s;
+  itoa (s, 'd', error);
+  write_serial_str (s);
+  write_serial_str (")\n");
+  iret();
 }
 
-int isr14(void) {
-	write_serial_str("Page Fault\n");
-	iret();
+void
+isr12_handler (int error)
+{
+  write_serial_str ("#SS(");
+  char *s;
+  itoa (s, 'd', error);
+  write_serial_str (s);
+  write_serial_str (")\n");
+  iret();
 }
 
-int isr16(void) {
-	write_serial_str("x87 Floating-Point Exception\n");
-	iret();
+void
+isr13_handler (unsigned int *error)
+{
+  write_serial_str ("#GP(");
+  unsigned char *s;
+  itoa (s, 'd', *error);
+  write_serial_str (s);
+  write_serial_str (")\n");
+  iret();
 }
 
-int isr17(void) {
-	write_serial_str("Alignment Check Exception\n");
-	iret();
+void
+isr14_handler (int error)
+{
+  write_serial_str ("#PF(");
+  char *s;
+  itoa (s, 'd', error);
+  write_serial_str (s);
+  write_serial_str (")\n");
+  iret();
 }
 
-int isr18(void) {
-	write_serial_str("Machine Check Exception\n");
-	iret();
+void
+isr15_handler (void)
+{
+  write_serial_str ("Reserved\n");
+  iret();
 }
 
-int isr19(void) {
-	write_serial_str("SIMD Floating-Point Exception\n");
-	iret();
+void
+isr16_handler (void)
+{
+  write_serial_str ("#MF\n");
+  iret();
 }
 
-int isr20(void) {
-	write_serial_str("Virtualization Exception\n");
-	iret();
+void
+isr17_handler (void)
+{
+  write_serial_str ("#AC\n");
+  iret();
 }
 
-int isr30(void) {
-	write_serial_str("Security Exception\n");
-	iret();
+void
+isr18_handler (void)
+{
+  write_serial_str ("#MC\n");
+  iret();
 }
 
-int isr_reserved(void) {
-	write_serial_str("Reserved Exception\n");
-	iret();
+void
+isr19_handler (void)
+{
+  write_serial_str ("#XM\n");
+  iret();
 }
 
-void idt_init(void) {
-	extern int loadIdt(unsigned long*);
-	extern int irq0(void);
-	extern int irq1(void);
-	extern int irq2(void);
-	extern int irq3(void);
-	extern int irq4(void);
-	extern int irq5(void);
-	extern int irq6(void);
-	extern int irq7(void);
-	extern int irq8(void);
-	extern int irq9(void);
-	extern int irq10(void);
-	extern int irq11(void);
-	extern int irq12(void);
-	extern int irq13(void);
-	extern int irq14(void);
-	extern int irq15(void);
+void
+isr20_handler (void)
+{
+  write_serial_str ("#VE\n");
+  iret();
+}
 
-	unsigned long irq0_address;
-	unsigned long irq1_address;
-	unsigned long irq2_address;
-	unsigned long irq3_address;
-	unsigned long irq4_address;
-	unsigned long irq5_address;
-	unsigned long irq6_address;
-	unsigned long irq7_address;
-	unsigned long irq8_address;
-	unsigned long irq9_address;
-	unsigned long irq10_address;
-	unsigned long irq11_address;
-	unsigned long irq12_address;
-	unsigned long irq13_address;
-	unsigned long irq14_address;
-	unsigned long irq15_address;
-	unsigned long idt_address;
-	unsigned long idt_ptr[2];
+void
+isr21_handler (void)
+{
+  write_serial_str ("Reserved\n");
+  iret();
+}
 
-	unsigned long isr0_address;
-	unsigned long isr1_address;
-	unsigned long isr2_address;
-	unsigned long isr3_address;
-	unsigned long isr4_address;
-	unsigned long isr5_address;
-	unsigned long isr6_address;
-	unsigned long isr7_address;
-	unsigned long isr8_address;
-	unsigned long isr9_address;
-	unsigned long isr10_address;
-	unsigned long isr11_address;
-	unsigned long isr12_address;
-	unsigned long isr13_address;
-	unsigned long isr14_address;
-	unsigned long isr16_address;
-	unsigned long isr17_address;
-	unsigned long isr18_address;
-	unsigned long isr19_address;
-	unsigned long isr20_address;
-	unsigned long isr_reserved_address;
-	unsigned long isr30_address;
+void
+isr22_handler (void)
+{
+  write_serial_str ("Reserved\n");
+  iret();
+}
 
-	isr0_address = (unsigned long) isr0;
-	IDT[0].offset_lowerbits = isr0_address & 0xffff;
-	IDT[0].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[0].zero = 0;
-	IDT[0].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[0].offset_higherbits = (isr0_address & 0xffff0000) >> 16;
+void
+isr23_handler (void)
+{
+  write_serial_str ("Reserved\n");
+  iret();
+}
 
-	isr1_address = (unsigned long) isr1;
-	IDT[1].offset_lowerbits = isr1_address & 0xffff;
-	IDT[1].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[1].zero = 0;
-	IDT[1].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[1].offset_higherbits = (isr1_address & 0xffff0000) >> 16;
+void
+isr24_handler (void)
+{
+  write_serial_str ("Reserved\n");
+  iret();
+}
 
-	isr2_address = (unsigned long) isr2;
-	IDT[2].offset_lowerbits = isr2_address & 0xffff;
-	IDT[2].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[2].zero = 0;
-	IDT[2].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[2].offset_higherbits = (isr2_address & 0xffff0000) >> 16;
+void
+isr25_handler (void)
+{
+  write_serial_str ("Reserved\n");
+  iret();
+}
 
-	isr3_address = (unsigned long) isr3;
-	IDT[3].offset_lowerbits = isr3_address & 0xffff;
-	IDT[3].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[3].zero = 0;
-	IDT[3].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[3].offset_higherbits = (isr3_address & 0xffff0000) >> 16;
+void
+isr26_handler (void)
+{
+  write_serial_str ("Reserved\n");
+  iret();
+}
 
-	isr4_address = (unsigned long) isr4;
-	IDT[4].offset_lowerbits = isr4_address & 0xffff;
-	IDT[4].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[4].zero = 0;
-	IDT[4].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[4].offset_higherbits = (isr4_address & 0xffff0000) >> 16;
+void
+isr27_handler (void)
+{
+  write_serial_str ("Reserved\n");
+  iret();
+}
 
-	isr18_address = (unsigned long) isr5;
-	IDT[5].offset_lowerbits = isr5_address & 0xffff;
-	IDT[5].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[5].zero = 0;
-	IDT[5].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[5].offset_higherbits = (isr5_address & 0xffff0000) >> 16;
+void
+isr28_handler (void)
+{
+  write_serial_str ("Reserved\n");
+  iret();
+}
 
-	isr6_address = (unsigned long) isr6;
-	IDT[6].offset_lowerbits = isr6_address & 0xffff;
-	IDT[6].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[6].zero = 0;
-	IDT[6].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[6].offset_higherbits = (isr6_address & 0xffff0000) >> 16;
+void
+isr29_handler (void)
+{
+  write_serial_str ("Reserved\n");
+  iret();
+}
 
-	isr7_address = (unsigned long) isr7;
-	IDT[7].offset_lowerbits = isr7_address & 0xffff;
-	IDT[7].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[7].zero = 0;
-	IDT[7].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[7].offset_higherbits = (isr7_address & 0xffff0000) >> 16;
+void
+isr30_handler (void)
+{
+  write_serial_str ("#SX\n");
+  iret();
+}
 
-	isr8_address = (unsigned long) isr8;
-	IDT[8].offset_lowerbits = isr8_address & 0xffff;
-	IDT[8].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[8].zero = 0;
-	IDT[8].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[8].offset_higherbits = (isr8_address & 0xffff0000) >> 16;
+void
+isr31_handler (void)
+{
+  write_serial_str ("Reserved\n");
+  iret();
+}
 
-	isr9_address = (unsigned long) isr9;
-	IDT[9].offset_lowerbits = isr9_address & 0xffff;
-	IDT[9].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[9].zero = 0;
-	IDT[9].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[9].offset_higherbits = (isr9_address & 0xffff0000) >> 16;
+void
+isr_handler (registers_t *r)
+{
+  char *s;
+  itoa (s, 'd', r->int_no);
+  write_serial_str (s);
+  write_serial ('(');
+  itoa (s, 'x', r->err_code);
+  write_serial_str (s);
+  write_serial (')');
+  write_serial ('\n');
+}
 
-	isr10_address = (unsigned long) isr10;
-	IDT[10].offset_lowerbits = isr10_address & 0xffff;
-	IDT[10].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[10].zero = 0;
-	IDT[10].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[10].offset_higherbits = (isr10_address & 0xffff0000) >> 16;
+void
+irq0_handler (void)
+{
+  outb(0x20, 0x20);
+}
 
-	isr11_address = (unsigned long) isr11;
-	IDT[11].offset_lowerbits = isr11_address & 0xffff;
-	IDT[11].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[11].zero = 0;
-	IDT[11].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[11].offset_higherbits = (isr11_address & 0xffff0000) >> 16;
+void
+irq1_handler (void)
+{
+  outb(0x20, 0x20);
+  kb_handler (inb(0x60));
+}
 
-	isr12_address = (unsigned long) isr12;
-	IDT[12].offset_lowerbits = isr12_address & 0xffff;
-	IDT[12].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[12].zero = 0;
-	IDT[12].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[12].offset_higherbits = (isr12_address & 0xffff0000) >> 16;
+void
+irq2_handler (void)
+{
+  outb(0x20, 0x20);
+}
 
-	isr13_address = (unsigned long) isr13;
-	IDT[13].offset_lowerbits = isr13_address & 0xffff;
-	IDT[13].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[13].zero = 0;
-	IDT[13].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[13].offset_higherbits = (isr13_address & 0xffff0000) >> 16;
+void
+irq3_handler (void)
+{
+  outb(0x20, 0x20);
+}
 
-	isr14_address = (unsigned long) isr14;
-	IDT[14].offset_lowerbits = isr14_address & 0xffff;
-	IDT[14].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[14].zero = 0;
-	IDT[14].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[14].offset_higherbits = (isr14_address & 0xffff0000) >> 16;
+void
+irq4_handler (void)
+{
+  outb(0x20, 0x20);
+}
 
-	isr_reserved_address = (unsigned long) isr_reserved;
-	IDT[15].offset_lowerbits = isr_reserved_address & 0xffff;
-	IDT[15].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[15].zero = 0;
-	IDT[15].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[15].offset_higherbits = (isr_reserved_address & 0xffff0000) >> 16;
+void
+irq5_handler (void)
+{
+  outb(0x20, 0x20);
+}
 
-	isr16_address = (unsigned long) isr16;
-	IDT[16].offset_lowerbits = isr16_address & 0xffff;
-	IDT[16].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[16].zero = 0;
-	IDT[16].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[16].offset_higherbits = (isr16_address & 0xffff0000) >> 16;
+void
+irq6_handler (void)
+{
+  outb(0x20, 0x20);
+}
 
-	isr17_address = (unsigned long) isr17;
-	IDT[17].offset_lowerbits = isr17_address & 0xffff;
-	IDT[17].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[17].zero = 0;
-	IDT[17].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[17].offset_higherbits = (isr17_address & 0xffff0000) >> 16;
+void
+irq7_handler (void)
+{
+  outb(0x20, 0x20);
+}
 
-	isr18_address = (unsigned long) isr18;
-	IDT[18].offset_lowerbits = isr18_address & 0xffff;
-	IDT[18].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[18].zero = 0;
-	IDT[18].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[18].offset_higherbits = (isr18_address & 0xffff0000) >> 16;
+void
+irq8_handler (void)
+{
+  outb(0xa0, 0x20);
+  outb(0x20, 0x20);
+}
 
-	isr19_address = (unsigned long) isr19;
-	IDT[19].offset_lowerbits = isr19_address & 0xffff;
-	IDT[19].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[19].zero = 0;
-	IDT[19].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[19].offset_higherbits = (isr19_address & 0xffff0000) >> 16;
+void
+irq9_handler (void)
+{
+  outb(0xa0, 0x20);
+  outb(0x20, 0x20);
+}
 
-	isr20_address = (unsigned long) isr20;
-	IDT[20].offset_lowerbits = isr20_address & 0xffff;
-	IDT[20].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[20].zero = 0;
-	IDT[20].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[20].offset_higherbits = (isr20_address & 0xffff0000) >> 16;
+void
+irq10_handler (void)
+{
+  outb(0xa0, 0x20);
+  outb(0x20, 0x20);
+}
 
-	IDT[21].offset_lowerbits = isr_reserved_address & 0xffff;
-	IDT[21].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[21].zero = 0;
-	IDT[21].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[21].offset_higherbits = (isr_reserved_address & 0xffff0000) >> 16;
+void
+irq11_handler (void)
+{
+  outb(0xa0, 0x20);
+  outb(0x20, 0x20);
+}
 
-	IDT[22].offset_lowerbits = isr_reserved_address & 0xffff;
-	IDT[22].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[22].zero = 0;
-	IDT[22].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[22].offset_higherbits = (isr_reserved_address & 0xffff0000) >> 16;
+void
+irq12_handler (void)
+{
+  outb(0xa0, 0x20);
+  outb(0x20, 0x20);
+}
 
-	IDT[23].offset_lowerbits = isr_reserved_address & 0xffff;
-	IDT[23].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[23].zero = 0;
-	IDT[23].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[23].offset_higherbits = (isr_reserved_address & 0xffff0000) >> 16;
+void
+irq13_handler (void)
+{
+  outb(0xa0, 0x20);
+  outb(0x20, 0x20);
+}
 
-	IDT[24].offset_lowerbits = isr_reserved_address & 0xffff;
-	IDT[24].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[24].zero = 0;
-	IDT[24].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[24].offset_higherbits = (isr_reserved_address & 0xffff0000) >> 16;
+void
+irq14_handler (void)
+{
+  outb(0xa0, 0x20);
+  outb(0x20, 0x20);
+}
 
-	IDT[25].offset_lowerbits = isr_reserved_address & 0xffff;
-	IDT[25].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[25].zero = 0;
-	IDT[25].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[25].offset_higherbits = (isr_reserved_address & 0xffff0000) >> 16;
-
-	IDT[26].offset_lowerbits = isr_reserved_address & 0xffff;
-	IDT[26].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[26].zero = 0;
-	IDT[26].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[26].offset_higherbits = (isr_reserved_address & 0xffff0000) >> 16;
-
-	IDT[27].offset_lowerbits = isr_reserved_address & 0xffff;
-	IDT[27].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[27].zero = 0;
-	IDT[27].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[27].offset_higherbits = (isr_reserved_address & 0xffff0000) >> 16;
-
-	IDT[28].offset_lowerbits = isr_reserved_address & 0xffff;
-	IDT[28].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[28].zero = 0;
-	IDT[28].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[28].offset_higherbits = (isr_reserved_address & 0xffff0000) >> 16;
-
-	IDT[29].offset_lowerbits = isr_reserved_address & 0xffff;
-	IDT[29].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[29].zero = 0;
-	IDT[29].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[29].offset_higherbits = (isr_reserved_address & 0xffff0000) >> 16;
-
-	isr30_address = (unsigned long) isr30;
-	IDT[30].offset_lowerbits = isr30_address & 0xffff;
-	IDT[30].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[30].zero = 0;
-	IDT[30].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[30].offset_higherbits = (isr30_address & 0xffff0000) >> 16;
-
-	IDT[31].offset_lowerbits = isr_reserved_address & 0xffff;
-	IDT[31].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[31].zero = 0;
-	IDT[31].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[31].offset_higherbits = (isr_reserved_address & 0xffff0000) >> 16;
-
-	/* remapping the PIC */
-	outb(0x20, 0x11);
-	outb(0xA0, 0x11);
-	outb(0x21, 0x20);
-	outb(0xA1, 40);
-	outb(0x21, 0x04);
-	outb(0xA1, 0x02);
-	outb(0x21, 0x01);
-	outb(0xA1, 0x01);
-	outb(0x21, 0x0);
-	outb(0xA1, 0x0);
-
-	irq0_address = (unsigned long) irq0;
-	IDT[32].offset_lowerbits = irq0_address & 0xffff;
-	IDT[32].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[32].zero = 0;
-	IDT[32].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[32].offset_higherbits = (irq0_address & 0xffff0000) >> 16;
-
-	irq1_address = (unsigned long) irq1;
-	IDT[33].offset_lowerbits = irq1_address & 0xffff;
-	IDT[33].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[33].zero = 0;
-	IDT[33].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[33].offset_higherbits = (irq1_address & 0xffff0000) >> 16;
-
-	irq2_address = (unsigned long) irq2;
-	IDT[34].offset_lowerbits = irq2_address & 0xffff;
-	IDT[34].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[34].zero = 0;
-	IDT[34].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[34].offset_higherbits = (irq2_address & 0xffff0000) >> 16;
-
-	irq3_address = (unsigned long) irq3;
-	IDT[35].offset_lowerbits = irq3_address & 0xffff;
-	IDT[35].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[35].zero = 0;
-	IDT[35].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[35].offset_higherbits = (irq3_address & 0xffff0000) >> 16;
-
-	irq4_address = (unsigned long) irq4;
-	IDT[36].offset_lowerbits = irq4_address & 0xffff;
-	IDT[36].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[36].zero = 0;
-	IDT[36].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[36].offset_higherbits = (irq4_address & 0xffff0000) >> 16;
-
-	irq5_address = (unsigned long) irq5;
-	IDT[37].offset_lowerbits = irq5_address & 0xffff;
-	IDT[37].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[37].zero = 0;
-	IDT[37].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[37].offset_higherbits = (irq5_address & 0xffff0000) >> 16;
-
-	irq6_address = (unsigned long) irq6;
-	IDT[38].offset_lowerbits = irq6_address & 0xffff;
-	IDT[38].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[38].zero = 0;
-	IDT[38].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[38].offset_higherbits = (irq6_address & 0xffff0000) >> 16;
-
-	irq7_address = (unsigned long) irq7;
-	IDT[39].offset_lowerbits = irq7_address & 0xffff;
-	IDT[39].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[39].zero = 0;
-	IDT[39].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[39].offset_higherbits = (irq7_address & 0xffff0000) >> 16;
-
-	irq8_address = (unsigned long) irq8;
-	IDT[40].offset_lowerbits = irq8_address & 0xffff;
-	IDT[40].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[40].zero = 0;
-	IDT[40].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[40].offset_higherbits = (irq8_address & 0xffff0000) >> 16;
-
-	irq9_address = (unsigned long) irq9;
-	IDT[41].offset_lowerbits = irq9_address & 0xffff;
-	IDT[41].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[41].zero = 0;
-	IDT[41].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[41].offset_higherbits = (irq9_address & 0xffff0000) >> 16;
-
-	irq10_address = (unsigned long) irq10;
-	IDT[42].offset_lowerbits = irq10_address & 0xffff;
-	IDT[42].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[42].zero = 0;
-	IDT[42].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[42].offset_higherbits = (irq10_address & 0xffff0000) >> 16;
-
-	irq11_address = (unsigned long) irq11;
-	IDT[43].offset_lowerbits = irq11_address & 0xffff;
-	IDT[43].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[43].zero = 0;
-	IDT[43].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[43].offset_higherbits = (irq11_address & 0xffff0000) >> 16;
-
-	irq12_address = (unsigned long) irq12;
-	IDT[44].offset_lowerbits = irq12_address & 0xffff;
-	IDT[44].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[44].zero = 0;
-	IDT[44].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[44].offset_higherbits = (irq12_address & 0xffff0000) >> 16;
-
-	irq13_address = (unsigned long) irq13;
-	IDT[45].offset_lowerbits = irq13_address & 0xffff;
-	IDT[45].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[45].zero = 0;
-	IDT[45].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[45].offset_higherbits = (irq13_address & 0xffff0000) >> 16;
-
-	irq14_address = (unsigned long) irq14;
-	IDT[46].offset_lowerbits = irq14_address & 0xffff;
-	IDT[46].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[46].zero = 0;
-	IDT[46].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[46].offset_higherbits = (irq14_address & 0xffff0000) >> 16;
-
-	irq15_address = (unsigned long) irq15;
-	IDT[47].offset_lowerbits = irq15_address & 0xffff;
-	IDT[47].selector = 0x08; /* KERNEL_CODE_SEGMENT_OFFSET */
-	IDT[47].zero = 0;
-	IDT[47].type_attr = 0x8e; /* INTERRUPT_GATE */
-	IDT[47].offset_higherbits = (irq15_address & 0xffff0000) >> 16;
-
-	/* fill the IDT descriptor */
-	idt_address = (unsigned long) IDT;
-	idt_ptr[0] = (sizeof(struct IDT_entry) * 256)
-			+ ((idt_address & 0xffff) << 16);
-	idt_ptr[1] = idt_address >> 16;
-
-	loadIdt(idt_ptr);
-
+void
+irq15_handler (void)
+{
+  outb(0xa0, 0x20);
+  outb(0x20, 0x20);
 }

@@ -1,3 +1,6 @@
+/*******************************************************************************
+ * Copyright (c) 2020 Aamos Pernu.
+ *******************************************************************************/
 #ifndef _KERNEL_H_
 #define _KERNEL_H_
 
@@ -29,14 +32,14 @@ char printbuf[1024];
 #define COM3 0x3e8
 #define COM4 0x2e8
 
-#define SERIAL_DATA 0						// Data Register if DLAB = 0 | Baud Rate Divisor Least Significant Byte if DLAB = 1
-#define SERIAL_INT_ENABLE 1					// Interrupt Enable Register if DLAB = 0 | Baud Rate Divisor Most Significant Byte if DLAB = 1
-#define SERIAL_INT_ID_FIFO_CONTROL 2		// Interrupt Identification and FIFO Control Registers
-#define SERIAL_LINE_CONTROL 3				// Line Control Register. Most Significant Bit = DLAB
-#define SERIAL_MODEM_CONTROL 4				// Modem Control Register
-#define SERIAL_LINE_STATUS 5				// Line Status Register
-#define SERIAL_MODEM_STATUS 6				// Modem Status Register
-#define SERIAL_SCRATCH 7					// Scratch Register
+#define SERIAL_DATA 0						/* Data Register if DLAB = 0 | Baud Rate Divisor Least Significant Byte if DLAB = 1 */
+#define SERIAL_INT_ENABLE 1					/* Interrupt Enable Register if DLAB = 0 | Baud Rate Divisor Most Significant Byte if DLAB = 1 */
+#define SERIAL_INT_ID_FIFO_CONTROL 2		/* Interrupt Identification and FIFO Control Registers */
+#define SERIAL_LINE_CONTROL 3				/* Line Control Register. Most Significant Bit = DLAB */
+#define SERIAL_MODEM_CONTROL 4				/* Modem Control Register */
+#define SERIAL_LINE_STATUS 5				/* Line Status Register */
+#define SERIAL_MODEM_STATUS 6				/* Modem Status Register */
+#define SERIAL_SCRATCH 7					/* Scratch Register */
 
 void init_serial(uint16_t port);
 uint8_t read_serial(void);
@@ -87,6 +90,7 @@ extern int vprintf(const char *format, va_list args);
 extern int printf(const char *format, ...);
 
 void set_timer_freq(int hz);
+void timer(void);
 
 void kb_init(void);
 void kb_handler(int scancode);

@@ -17,22 +17,13 @@ TSTFILES := $(patsubst %.c,%_t,$(SRCFILES)) $(patsubst %.s,%_t,$(ASMFILES))
 
 ALLFILES := $(AUXFILES) $(ASMFILES) $(SRCFILES) $(HDRFILES)
 
-.PHONY: all clean dist check
-
-WARNINGS := -Wall -Wextra -pedantic -Wshadow -Wpointer-arith -Wcast-align \
-            -Wwrite-strings -Wmissing-prototypes -Wmissing-declarations \
-            -Wredundant-decls -Wnested-externs -Winline -Wno-long-long \
-            -Wconversion -Wstrict-prototypes
-
-CFLAGS := -ffreestanding -g -std=gnu99 $(WARNINGS)
-
 all: dependencies
 
 dependencies:
 	make all -C src
 
 clean:
-	rm -r src/isodir src/aamOS.elf src/*.o
+	make clean -C src
 
 dist:
 	tar czf aamOS.tgz $(ALLFILES)

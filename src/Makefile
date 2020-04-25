@@ -1,25 +1,31 @@
-CC := i386-elf-gcc
+CC := gcc
 AS := nasm
+CC86 := i386-elf-gcc
 
-WARNINGS := -Wall -Wextra -pedantic -Wshadow -Wpointer-arith -Wcast-align \
-            -Wwrite-strings -Wmissing-prototypes -Wmissing-declarations \
-            -Wredundant-decls -Wnested-externs -Winline -Wno-long-long \
-            -Wconversion -Wstrict-prototypes
+WARNINGS := -Wall -Wextra
 
-CFLAGS := -nostdlib -O2 -ffreestanding -g -std=gnu99 -I. $(WARNINGS)
-ASFLAGS := -nostdlib -g -I. -O2
+CFLAGS := -nostdlib -O2 -ffreestanding -g -std=gnu99 -Iinclude -nostdinc $(WARNINGS)
 
-SRCFILES := console.c font.c kernel.c serial.c utils.c vga.c idt.c irq.c
-ASMFILES := start.s
+SRCFILES := $(shell find kernel boot mm -name "*.c")
+ASMFILES := $(shell find kernel boot mm -name "*.s")
 OBJFILES := $(patsubst %.c,%.o,$(SRCFILES)) $(patsubst %.s,%.o,$(ASMFILES))
 
-all: aamOS.elf
+all: $(OBJFILES) aamOS.elf
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC86) $(CFLAGS) -c $< -o $@
+
+#boot/start.o: boot/start.s
+#	$(AS) -f elf32 $< -o $@
+#
+#boot/idt.o: boot/idt.c
+#	$(CC86) $(CFLAGS) -c $< -o $@
 
 %.o: %.s
 	$(AS) -f elf32 $< -o $@
 
 aamOS.elf: $(OBJFILES)
-	$(CC) $(WARNINGS) -ffreestanding -nostdlib -I. -T link.ld -o aamOS.elf $?
+	$(CC86) $(WARNINGS) -ffreestanding -nostdlib -I. -T link.ld -o aamOS.elf $?
+	
+clean:
+	rm $(OBJFILES) aamOS.elf
