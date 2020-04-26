@@ -1,29 +1,30 @@
 CC := i386-elf-gcc
 
-AUXFILES := Makefile .gitignore .git/ src/link.ld src/grub.cfg src/Makefile
+AUXFILES := Makefile README.md run.sh
 
 PROJDIRS := src
 
-DRIVER_SRC := $(DRIVERS)/*.c
-DRIVER_HDR := $(DRIVERS)/*.h
-
-LINKER := $(PROJDIRS)/link.ld
-ASMFILES := $(PROJDIRS)/*.s
-SRCFILES := $(PROJDIRS)/*.c $(DRIVER_SRC)
-HDRFILES := $(PROJDIRS)/*.h $(DRIVER_HDR)
-
-OBJFILES := $(patsubst %.c,%.o,$(SRCFILES)) $(patsubst %.s,%.o,$(ASMFILES))
-TSTFILES := $(patsubst %.c,%_t,$(SRCFILES)) $(patsubst %.s,%_t,$(ASMFILES))
-
-ALLFILES := $(AUXFILES) $(ASMFILES) $(SRCFILES) $(HDRFILES)
-
-all: dependencies
+all: dependencies aamOS.iso run
 
 dependencies:
 	make all -C src
 
 clean:
+	rm -rf isodir
 	make clean -C src
 
 dist:
-	tar czf aamOS.tgz $(ALLFILES)
+	mkdir aamOS
+	cp -r $(AUXFILES) aamOS
+	cp -r $(PROJDIRS) aamOS
+	tar czf aamOS.tar.gz aamOS
+	rm -rf aamOS
+	
+aamOS.iso: src/aamOS.elf src/grub.cfg
+	mkdir -p isodir/boot/grub
+	cp src/grub.cfg isodir/boot/grub/grub.cfg
+	cp src/aamOS.elf isodir/boot/aamOS.elf
+	grub-mkrescue src/isodir -o aamOS.iso
+	
+run: run.c
+	gcc run.c -o run

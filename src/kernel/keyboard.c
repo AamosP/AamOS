@@ -32,5 +32,5 @@ kb_init ()
 void
 kb_handler (int scancode)
 {
-  printf("%c", keymap[scancode]);
+  printf ("%c", keymap[scancode]);
 }

@@ -53,9 +53,6 @@ void console_putchar(char c);
 void console_print(char* s);
 uint64_t console_getcolor(uint32_t fg, uint32_t bg);
 void console_setcolor(uint32_t fg, uint32_t bg);
-uint8_t *data;
-
-uint8_t font_data[0x900];
 
 void VGA_init(struct multiboot_tag_framebuffer *tag);
 void VGA_putpixel(uint32_t x, uint32_t y, uint32_t color);
