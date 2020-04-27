@@ -3,10 +3,10 @@
  *******************************************************************************/
 #include <aamOS/kernel.h>
 #include <sys/types.h>
-#include <multiboot2.h>
+#include <multiboot.h>
 #include <memory.h>
 
-static struct multiboot_tag_framebuffer *tagfb;
+//static vbe_mode_info_t *tagfb;
 static uint8_t *fb;
 static uint32_t fbtype;
 static uint32_t Xres;
@@ -15,19 +15,19 @@ static uint32_t pitch;
 static uint8_t bpp;
 
 void
-VGA_init (struct multiboot_tag_framebuffer *tag)
+VGA_init (multiboot_info_t *mbi)
 {
-  tagfb = tag;
+  //tagfb = tag;
 //	char *s;
 //	itoa(s, 'x', fb);
 //	write_serial_str(s);
 //	write_serial('\n');
-  fbtype = tagfb->common.framebuffer_type;
-  Xres = tagfb->common.framebuffer_width;
-  Yres = tagfb->common.framebuffer_height;
-  pitch = tagfb->common.framebuffer_pitch;
-  bpp = tagfb->common.framebuffer_bpp;
-  fb = (void*) (unsigned long) tagfb->common.framebuffer_addr;
+  fbtype = mbi->framebuffer_type;
+  Xres = mbi->framebuffer_width;
+  Yres = mbi->framebuffer_height;
+  pitch = mbi->framebuffer_pitch;
+  bpp = mbi->framebuffer_bpp;
+  fb = (void*) (unsigned long) mbi->framebuffer_addr;
   VGA_clear ();
   //for(int i = 0; i < (pitch * Yres + (bpp / 8) * Xres); i++)tfb[i] = fb[i];
 }
@@ -107,6 +107,7 @@ VGA_drawchar (uint32_t x, uint32_t y, uint32_t c, uint32_t fg_color,
 	}
       pb += b;
     }
+  return;
 }
 
 void

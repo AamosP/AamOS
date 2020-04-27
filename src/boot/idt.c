@@ -325,11 +325,11 @@ isr12_handler (int error)
 }
 
 void
-isr13_handler (unsigned int *error)
+isr13_handler (unsigned int error)
 {
   write_serial_str ("#GP(");
-  unsigned char *s;
-  itoa (s, 'd', *error);
+  char *s;
+  itoa (s, 'd', error);
   write_serial_str (s);
   write_serial_str (")\n");
   iret();
@@ -463,19 +463,6 @@ isr31_handler (void)
 {
   write_serial_str ("Reserved\n");
   iret();
-}
-
-void
-isr_handler (registers_t *r)
-{
-  char *s;
-  itoa (s, 'd', r->int_no);
-  write_serial_str (s);
-  write_serial ('(');
-  itoa (s, 'x', r->err_code);
-  write_serial_str (s);
-  write_serial (')');
-  write_serial ('\n');
 }
 
 void

@@ -1,13 +1,35 @@
 STACK_SIZE equ 0x4000
 
 AOUT_KLUDGE equ 0
+PG_ALIGN equ 1
+MEM_INFO equ 2
+VID_MODE equ 4
 
-MAGIC equ 0xe85250d6
-ARCH equ 0
+FLAGS equ PG_ALIGN | MEM_INFO | VID_MODE | AOUT_KLUDGE
 
-TAG_FB equ 5
-TAG_OPTIONAL equ 1
-TAG_END equ 0
+MAGIC equ 0x1BADB002
+
+section .multiboot
+	align 4
+multiboot_header:
+	dd MAGIC
+	dd FLAGS
+	dd -(MAGIC + FLAGS)
+	dd 0
+	dd 0
+	dd 0
+	dd 0
+	dd 0
+	dd 0
+	dd 1024
+	dd 768
+	dd 32
+
+section .bss
+align 16
+stack_bottom:
+	resb STACK_SIZE
+stack_top:
 
 extern kernel_main
 
@@ -17,28 +39,6 @@ start:
 _start:
 	jmp multiboot_entry
 
-	align 8
-multiboot_header:
-	dd MAGIC
-	dd ARCH
-	dd multiboot_header_end - multiboot_header
-	dd -(MAGIC + ARCH + (multiboot_header_end - multiboot_header))
-framebuffer_tag_start:
-	dw TAG_FB
-	dw TAG_OPTIONAL
-	dd framebuffer_tag_end - framebuffer_tag_start
-	dd 1024
-	dd 768
-	dd 32
-framebuffer_tag_end:
-	dw TAG_END
-	;dw 0
-	dd 8
-multiboot_header_end:
-addr:
-	dd 0
-magic:
-	dd 0
 multiboot_entry:
 ;	push 0x3f8
 ;	call init_serial
@@ -54,21 +54,20 @@ multiboot_entry:
 	push eax
 	call kernel_main
 
-h:	hlt
+	hlt
 	jmp $
 
-stack_bottom:
-	resb STACK_SIZE
-stack_top:
 gdt:
 	dq 0x0000000000000000
-	dq 0x00c09a00000007ff
-	dq 0x00c09200000007ff
+	dq 0x00cf9a000000ffff
+	dq 0x00cf92000000ffff
 	dq 0x0000000000000000
 gdt_end:
+
 gdt_desc:
 	dw gdt_end - gdt - 1
 	dd gdt
+
 global loadGdt
 loadGdt:
 	cli
@@ -160,65 +159,6 @@ IRQ 12
 IRQ 13
 IRQ 14
 IRQ 15
-
-extern isr_handler
-; This is our common ISR stub. It saves the processor state, sets
-; up for kernel mode segments, calls the C-level fault handler,
-; and finally restores the stack frame.
-isr_common_stub:
-	pusha			; Pushes edi, esi, ebp, esp, ebx, edx, edx, eax
-
-	mov ax, ds		; Lower 16-bits of eax = ds.
-	push eax		; save the data segment descriptor
-
-	mov ax, 0x10		; load the kernel data segment descriptor
-	mov ds, ax
-	mov es, ax
-	mov fs, ax
-	mov gs, ax
-
-	call isr_handler
-
-	pop eax			; reload the original data segment descriptor
-	mov ds, ax
-	mov es, ax
-	mov fs, ax
-	mov gs, ax
-
-	popa			; Pops edi, esi, ebp...
-	add esp, 8		; Cleans up the pushed error code and pushed ISR number
-	sti
-	iret			; pops 5 things at once, CS, EIP, EFLAGS, SS, and ESP
-
-;extern irq_handler
-
-; This is our common IRQ stub. It saves the processor state, sets
-; up for kernel mode segments, calls the C-level fault handler,
-; and finally restores the stack frame.
-;irq_common_stub:
-;	pusha			; Pushes edi, esi, ebp, esp, ebx, edx, ecx, eax
-;
-;	mov ax, ds		; Lower 16 bits of eax = ds.
-;	push eax		; save the data segment descriptor
-;
-;	mov ax, 0x10		; load the kernel data segment descriptor.
-;	mov ds, ax
-;	mov es, ax
-;	mov fs, ax
-;	mov gs, ax
-;
-;	call irq_handler
-;
-;	pop ebx			; reload the original data segment descriptor
-;	mov ds, bx
-;	mov es, bx
-;	mov fs, bx
-;	mov gs, bx
-;
-;	popa			; Pops edi, esi, ebp, esp, ebx, edx, ecx, eax
-;	add esp, 8		; Cleans up the pushed error code and pushed IRS number
-;	sti
-;	iret			; pops 5 things at once: CS, EIP, EFLAGS, SS, and ESP
 
 global loadIdt
 loadIdt:

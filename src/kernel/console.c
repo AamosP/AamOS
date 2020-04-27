@@ -31,11 +31,11 @@ console_setcolor (uint32_t fg, uint32_t bg)
 }
 
 void
-console_init (struct multiboot_tag_framebuffer *tag, uint32_t fg, uint32_t bg)
+console_init (multiboot_info_t *mbi, uint32_t fg, uint32_t bg)
 {
-  VGA_init (tag);
-  cols = tag->common.framebuffer_width / 8;
-  rows = tag->common.framebuffer_height / 8;
+  VGA_init (mbi);
+  cols = mbi->framebuffer_width / 8;
+  rows = mbi->framebuffer_height / 8;
   index = 0;
   fg_col = fg;
   bg_col = bg;
@@ -78,7 +78,7 @@ console_putchar (char c)
       }
       index = 0;
     }
-  else if (c == '\b')
+  else if (c == 127)
     {
       if (index > 0)
 	{
@@ -111,4 +111,5 @@ console_print (char *s)
       console_putchar (s[i]);
       i++;
     }
+  return;
 }

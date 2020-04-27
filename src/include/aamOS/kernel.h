@@ -5,7 +5,7 @@
 #define _KERNEL_H_
 
 #include <sys/types.h>
-#include <multiboot2.h>
+#include <multiboot.h>
 #include <stdarg.h>
 
 char printbuf[1024];
@@ -46,7 +46,7 @@ uint8_t read_serial(void);
 void write_serial(char a);
 void write_serial_str(char* a);
 
-void console_init(struct multiboot_tag_framebuffer *tag, uint32_t fg, uint32_t bg);
+void console_init(multiboot_info_t *mbi, uint32_t fg, uint32_t bg);
 void console_scroll(void);
 void console_clear(void);
 void console_putchar(char c);
@@ -54,7 +54,7 @@ void console_print(char* s);
 uint64_t console_getcolor(uint32_t fg, uint32_t bg);
 void console_setcolor(uint32_t fg, uint32_t bg);
 
-void VGA_init(struct multiboot_tag_framebuffer *tag);
+void VGA_init(multiboot_info_t *mbi);
 void VGA_putpixel(uint32_t x, uint32_t y, uint32_t color);
 void VGA_drawrect(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint32_t color);
 void VGA_drawchar(uint32_t x, uint32_t y, uint32_t c, uint32_t fg_color, uint32_t bg_color);
@@ -89,6 +89,7 @@ extern int printf(const char *format, ...);
 void set_timer_freq(int hz);
 void timer(void);
 
+char get_queue(void);
 void kb_init(void);
 void kb_handler(int scancode);
 

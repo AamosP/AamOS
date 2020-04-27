@@ -18,24 +18,25 @@ typedef unsigned int size_t;
 
 typedef long clock_t;
 
-struct tm
-{
-  int tm_sec;
-  int tm_min;
-  int tm_hour;
-  int tm_mday;
-  int tm_mon;
-  int tm_year;
-  int tm_wday;
-  int tm_yday;
-  int tm_isdst;
+time_t startup_time;
+
+struct tm {
+	int tm_sec;
+	int tm_min;
+	int tm_hour;
+	int tm_mday;
+	int tm_mon;
+	int tm_year;
+	int tm_wday;
+	int tm_yday;
+	int tm_isdst;
 };
 
-time_t
-mktime (struct tm *tp);
-void
-time_init (void);
-struct tm*
-get_time ();
+char *parse_mon(int md);
+int get_wd(int day, int month, int year);
+time_t mktime(struct tm *tp);
+void time_init(void);
+struct tm* get_time();
+char* parse_wd(int wd);
 
 #endif

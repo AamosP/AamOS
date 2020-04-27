@@ -4,7 +4,7 @@ AUXFILES := Makefile README.md run.sh
 
 PROJDIRS := src
 
-all: dependencies aamOS.iso run
+all: dependencies aamOS.iso
 
 dependencies:
 	make all -C src
@@ -24,7 +24,4 @@ aamOS.iso: src/aamOS.elf src/grub.cfg
 	mkdir -p isodir/boot/grub
 	cp src/grub.cfg isodir/boot/grub/grub.cfg
 	cp src/aamOS.elf isodir/boot/aamOS.elf
-	grub-mkrescue src/isodir -o aamOS.iso
-	
-run: run.c
-	gcc run.c -o run
+	grub-mkrescue isodir -o aamOS.iso
