@@ -6,7 +6,7 @@
 
 static int mode = 0;
 
-static int leds = 0;
+static uint8_t leds = 0;
 
 static int e0 = 0;
 
@@ -14,21 +14,21 @@ static unsigned long functable[12] = { 0x415b5b1b, 0x425b5b1b, 0x435b5b1b,
 		0x445b5b1b, 0x455b5b1b, 0x465b5b1b, 0x475b5b1b, 0x485b5b1b, 0x495b5b1b,
 		0x4a5b5b1b, 0x4b5b5b1b, 0x4c5b5b1b };
 
-static char keymap[0x4d] = { 0, 0x1b, '1', '2', '3', '4', '5', '6', '7', '8',
-		'9', '0', '+', '\'', 127, 9, 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i',
-		'o', 'p', '}', 0, 10, 0, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l',
-		'|', '{', 0, 0, '\'', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '-',
+static char keymap[0x60] = { 0, 0x1b, '1', '2', '3', '4', '5', '6', '7', '8',
+		'9', '0', '+', '´', 127, 9, 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i',
+		'o', 'p', 'å', '¨', 10, 0, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l',
+		'ö', 'ä', '§', 0, '\'', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '-',
 		0, '*', 0, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '-', 0,
 		0, 0, '+', 0, 0, 0, 0, 0, 0, 0, '<', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-static char shiftmap[0x4d] = { 0, 0x1b, '!', '"', '#', '$', '%', '&', '/', '(',
+static char shiftmap[0x60] = { 0, 0x1b, '!', '"', '#', '¤', '%', '&', '/', '(',
 		')', '=', '?', '`', 127, 9, 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O',
-		'P', ']', '^', 10, 0, 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', '\\',
-		'[', 0, 0, '*', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', ';', ':', '_', 0,
+		'P', 'Å', '^', 10, 0, 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Ö',
+		'Ä', '½', 0, '*', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', ';', ':', '_', 0,
 		'*', 0, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '-', 0, 0,
 		0, '+', 0, 0, 0, 0, 0, 0, 0, '>', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-static char altmap[0x4d] = { 0, 0, '\0', '@', '\0', '$', '\0', '\0', '{', '[',
+static char altmap[0x60] = { 0, 0, '\0', '@', '£', '$', '\0', '\0', '{', '[',
 		']', '}', '\\', '\0', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '~', 10, 0,
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -109,7 +109,7 @@ static void do_self(void) {
 	put_queue(key);
 }
 
-static void prtscr(void) {
+static void psbrk(void) {
 	return;
 }
 
@@ -121,9 +121,10 @@ static void ctrl(void) {
 	int m = 0x04;
 	if (e0 == 1)
 		m *= 2;
-	else if(e0 == 2) {
+	else if (e0 == 2) {
 		m = 0;
-		prtscr();
+		psbrk();
+		return;
 	}
 	mode |= m;
 }
@@ -152,12 +153,12 @@ static void alt(void) {
 }
 
 static void caps(void) {
-	if(mode ^ 0x80) {
+	if (mode ^ 0x80) {
 		leds ^= 4;
 		mode ^= 0x40;
 		mode |= 0x80;
-		set_leds();
 	}
+	set_leds();
 }
 
 static void func(void) {
@@ -208,9 +209,7 @@ static void unalt(void) {
 
 static void uncaps(void) {
 	mode &= 0x7f;
-	char *s;
-	itoa(s, 'x', mode);
-	write_serial_str(s);
+	set_leds();
 }
 
 static void cursor(void) {
@@ -283,18 +282,20 @@ static void (*key_table[256])(void) = {none,do_self,do_self,do_self, /* 00-03 s0
 	none,none,none,none /* FC-FF ? ? ? ? */};
 
 void kb_init() {
+	register_irq_handler(1, kb_handler);
 	outb(0x60, 0xf5);
 	outb(0x60, 0xf0);
 	outb(0x60, 0x02);
 	outb(0x60, 0xf4);
 }
 
-void kb_handler(int scancode) {
+void kb_handler(registers_t *regs) {
+	int scancode = inb(0x60);
 	key = scancode;
 	void (*key_handler)(void);
-	if(scancode == 0xe0) {
+	if (scancode == 0xe0) {
 		e0 = 1;
-	} else if(scancode == 0xe1) {
+	} else if (scancode == 0xe1) {
 		e0 = 2;
 	} else {
 		key_handler = key_table[scancode];

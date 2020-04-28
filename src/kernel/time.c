@@ -55,8 +55,8 @@ char *parse_mon(int md) {
 }
 
 time_t mktime(struct tm *tm) {
-	long res;
-	int year;
+	static long res;
+	static int year;
 
 	year = tm->tm_year - 1970;
 	/* magic offsets (y+1) needed to get leapyears right.*/

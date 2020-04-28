@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <multiboot.h>
 #include <stdarg.h>
+#include <idt.h>
 
 char printbuf[1024];
 
@@ -59,7 +60,7 @@ void VGA_putpixel(uint32_t x, uint32_t y, uint32_t color);
 void VGA_drawrect(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint32_t color);
 void VGA_drawchar(uint32_t x, uint32_t y, uint32_t c, uint32_t fg_color, uint32_t bg_color);
 void VGA_print(uint32_t x, uint32_t y, uint8_t* s, uint32_t fg_color, uint32_t bg_color);
-void VGA_scroll(char d);
+void VGA_scroll(char d, int p);
 uint32_t VGA_getpixel(uint32_t x, uint32_t y);
 void VGA_clear(void);
 
@@ -87,10 +88,19 @@ extern int vprintf(const char *format, va_list args);
 extern int printf(const char *format, ...);
 
 void set_timer_freq(int hz);
-void timer(void);
+void timer(registers_t *regs);
+void timer_init(void);
 
 char get_queue(void);
 void kb_init(void);
-void kb_handler(int scancode);
+void kb_handler(registers_t *regs);
+
+void idt_set_gate (uint8_t num, uint32_t offset, uint16_t sel, uint8_t flags);
+
+void register_isr_handler(int n, void (*h)(registers_t*));
+void init_isrs(void);
+
+void register_irq_handler(int n, void (*h)(registers_t*));
+void init_irqs(void);
 
 #endif
