@@ -24,4 +24,4 @@ aamOS.iso: src/aamOS.elf src/grub.cfg
 	mkdir -p isodir/boot/grub
 	cp src/grub.cfg isodir/boot/grub/grub.cfg
 	cp src/aamOS.elf isodir/boot/aamOS.elf
-	./grub2-mkrescue isodir -o aamOS.iso
+	grub-mkrescue isodir -o aamOS.iso
