@@ -4,7 +4,7 @@ AUXFILES := Makefile README.md run.sh
 
 PROJDIRS := src
 
-all: dependencies aamOS.iso
+all: dependencies aamOS.iso clean
 
 dependencies:
 	make all -C src
@@ -12,6 +12,10 @@ dependencies:
 clean:
 	rm -rf isodir
 	make clean -C src
+	
+tclean:
+	rm -rf isodir
+	make tclean -C src
 
 dist:
 	mkdir aamOS
