@@ -1,1 +1,4 @@
-/start.s.old
+mm/*.o
+kernel/*.o
+lib
+boot/*.o
