@@ -13,10 +13,6 @@ clean:
 	rm -rf isodir
 	make clean -C src
 	
-tclean:
-	rm -rf isodir
-	make tclean -C src
-
 dist:
 	mkdir aamOS
 	cp -r $(AUXFILES) aamOS
@@ -28,4 +24,4 @@ aamOS.iso: src/aamOS.elf src/grub.cfg
 	mkdir -p isodir/boot/grub
 	cp src/grub.cfg isodir/boot/grub/grub.cfg
 	cp src/aamOS.elf isodir/boot/aamOS.elf
-	grub-mkrescue isodir -o aamOS.iso
+	./grub2-mkrescue isodir -o aamOS.iso
