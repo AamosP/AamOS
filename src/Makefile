@@ -1,6 +1,6 @@
 CC := gcc
 AS := nasm
-CC86 := i386-elf-gcc
+CC86 := ../i386-elf-gcc
 
 WARNINGS := -Wall -Wextra
 
