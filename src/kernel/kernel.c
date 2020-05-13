@@ -30,7 +30,7 @@ void kernel_main(unsigned long magic, unsigned long addr) {
 	kb_init();
 	time_init();
 	timer_init();
-	init_paging();
+//	init_paging();
 //	enable_paging();
 //	switch_page((uint32_t*)0xffff0000);
 //	mmap_page(mk_page_dir(), 0xffff0000, 0xfd000000);
