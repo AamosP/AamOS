@@ -1,3 +1,4 @@
 mm/*.o
 kernel/*.o
+lib
 boot/*.o
