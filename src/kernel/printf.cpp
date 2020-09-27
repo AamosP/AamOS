@@ -13,7 +13,7 @@ int __printf(const char *format, ...) {
 	done = __vsprintf(printbuf, format, arg);
 	va_end(arg);
 
-	write_serial_str(printbuf);
+	write_string(printbuf);
 	return done;
 }
 //extern __typeof (__printf) printf __attribute__ ((alias ("__printf")));
