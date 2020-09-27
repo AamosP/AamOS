@@ -1,31 +1,23 @@
-CC := gcc
 AS := nasm
-CC86 := i386-elf-gcc
+CXX := i386-elf-g++
+OBJCOPY := i386-elf-objcopy
 
 WARNINGS := -Wall -Wextra
+INCLUDE := include
+CFLAGS := -nostdlib -ffreestanding -std=c++11 -mno-red-zone -fno-exceptions -fno-rtti -nostdlib -g -I $(INCLUDE) $(WARNINGS)
 
-CFLAGS := -nostdlib -O2 -ffreestanding -g -std=gnu99 -Iinclude -nostdinc $(WARNINGS)
+SRCFILES := $(shell find kernel boot mm -name "*.cpp")
+ASMFILES := $(shell find kernel boot mm -name "*.asm")
+OBJFILES := $(patsubst %.asm,%.o,$(ASMFILES))
 
-SRCFILES := $(shell find kernel boot mm -name "*.c")
-ASMFILES := $(shell find kernel boot mm -name "*.s")
-OBJFILES := $(patsubst %.c,%.o,$(SRCFILES)) $(patsubst %.s,%.o,$(ASMFILES))
+all: aamOS.bin
 
-all: $(OBJFILES) aamOS.elf
-
-%.o: %.c
-	$(CC86) $(CFLAGS) -c $< -o $@
-
-#boot/start.o: boot/start.s
-#	$(AS) -f elf32 $< -o $@
-#
-#boot/idt.o: boot/idt.c
-#	$(CC86) $(CFLAGS) -c $< -o $@
-
-%.o: %.s
+%.o: %.asm
 	$(AS) -f elf32 $< -o $@
 
-aamOS.elf: $(OBJFILES)
-	$(CC86) $(WARNINGS) -ffreestanding -nostdlib -I. -T link.ld -o aamOS.elf $?
+aamOS.bin: $(OBJFILES) $(SRCFILES)
+	$(CXX) $(CFLAGS) -T linker.ld -o aamOS.elf $?
+	$(OBJCOPY) -O binary aamOS.elf aamOS.bin
 	
 clean:
-	rm $(OBJFILES) aamOS.elf
+	rm $(OBJFILES) aamOS.bin aamOS.elf

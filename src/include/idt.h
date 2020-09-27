@@ -23,6 +23,6 @@ struct IDT_entry {
 	unsigned short int offset_hi;
 };
 
-void idt_init(void);
+extern "C" void idt_init(void);
 
 #endif

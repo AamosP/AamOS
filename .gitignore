@@ -14,3 +14,6 @@ tmp/
 /.eclipse-pmd
 /.cproject
 /bochs.log
+/aamOS.elf
+/aamOS.img
+/bochsrc.txt

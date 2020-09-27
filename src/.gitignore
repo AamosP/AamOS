@@ -1,3 +1,4 @@
 mm/*.o
 kernel/*.o
 boot/*.o
+/.DS_Store

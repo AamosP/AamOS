@@ -5,11 +5,10 @@
 #define _KERNEL_H_
 
 #include <sys/types.h>
-#include <multiboot.h>
-#include <stdarg.h>
 #include <idt.h>
-
-char printbuf[1024];
+#include <stdarg.h>
+#include <asm/io.h>
+#include <asm/system.h>
 
 #define WHITE 0xffffff
 #define LIGHT_GRAY 0xc0c0c0
@@ -28,6 +27,8 @@ char printbuf[1024];
 #define MAGENTA 0xff00ff
 #define PURPLE 0x800080
 
+#define EGA_BLACK 0
+
 #define COM1 0x3f8
 #define COM2 0x2f8
 #define COM3 0x3e8
@@ -45,24 +46,7 @@ char printbuf[1024];
 void init_serial(uint16_t port);
 uint8_t read_serial(void);
 void write_serial(char a);
-void write_serial_str(char* a);
-
-void console_init(multiboot_info_t *mbi, uint32_t fg, uint32_t bg);
-void console_scroll(void);
-void console_clear(void);
-void console_putchar(char c);
-void console_print(char* s);
-uint64_t console_getcolor(uint32_t fg, uint32_t bg);
-void console_setcolor(uint32_t fg, uint32_t bg);
-
-void VGA_init(multiboot_info_t *mbi);
-void VGA_putpixel(uint32_t x, uint32_t y, uint32_t color);
-void VGA_drawrect(uint32_t x, uint32_t y, uint32_t width, uint32_t height, uint32_t color);
-void VGA_drawchar(uint32_t x, uint32_t y, uint32_t c, uint32_t fg_color, uint32_t bg_color);
-void VGA_print(uint32_t x, uint32_t y, uint8_t* s, uint32_t fg_color, uint32_t bg_color);
-void VGA_scroll(char d, int p);
-uint32_t VGA_getpixel(uint32_t x, uint32_t y);
-void VGA_clear(void);
+void write_serial_str(const char* a);
 
 void irq0_handler(void);
 void irq1_handler(void);
@@ -82,10 +66,9 @@ void irq14_handler(void);
 void irq15_handler(void);
 
 void itoa(char *buf, int base, int d);
-
-extern int vsprintf(char *buf, const char *fmt, va_list args);
-extern int vprintf(const char *format, va_list args);
-extern int printf(const char *format, ...);
+void* memcpy(void* dest, const void* src, size_t n);
+void* memset(void* s, int c, size_t n);
+void dump_struct(void* structure, size_t bytes);
 
 void set_timer_freq(int hz);
 void timer(registers_t *regs);
@@ -102,5 +85,10 @@ void init_isrs(void);
 
 void register_irq_handler(int n, void (*h)(registers_t*));
 void init_irqs(void);
+
+void set_fg(uint8_t fg);
+void set_bg(uint8_t bg);
+void write_char(const char c);
+void write_string(const char* s);
 
 #endif

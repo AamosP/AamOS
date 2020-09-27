@@ -1,10 +1,10 @@
 CC := i386-elf-gcc
 
-AUXFILES := Makefile README.md run.sh
+AUXFILES := Makefile README.md run.sh sym.sh KBlayouts.txt
 
 PROJDIRS := src
 
-all: dependencies aamOS.iso clean
+all: dependencies aamOS.img
 
 dependencies:
 	make all -C src
@@ -20,8 +20,5 @@ dist:
 	tar czf aamOS.tar.gz aamOS
 	rm -rf aamOS
 	
-aamOS.iso: src/aamOS.elf src/grub.cfg
-	mkdir -p isodir/boot/grub
-	cp src/grub.cfg isodir/boot/grub/grub.cfg
-	cp src/aamOS.elf isodir/boot/aamOS.elf
-	grub-mkrescue isodir -o aamOS.iso
+aamOS.img: src/aamOS.bin
+	xorrisofs -o aamOS.img -R -J -V "AAMOS" -G src/aamOS.bin

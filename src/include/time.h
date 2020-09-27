@@ -18,7 +18,7 @@ typedef unsigned int size_t;
 
 typedef long clock_t;
 
-time_t startup_time;
+extern time_t startup_time;
 
 struct tm {
 	int tm_sec;

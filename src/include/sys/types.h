@@ -20,7 +20,7 @@ typedef long ptrdiff_t;
 #endif
 
 #ifndef NULL
-#define NULL ((void *) 0)
+#define NULL 0
 #endif
 
 typedef int pid_t;
@@ -46,6 +46,9 @@ typedef signed long long int64_t;
 
 typedef struct { int quot,rem; } div_t;
 typedef struct { long quot,rem; } ldiv_t;
+
+#define FALSE 0
+#define TRUE (!FALSE)
 
 struct ustat {
 	daddr_t f_tfree;
