@@ -1,4 +1,5 @@
-AamOS is a hobby OS project.
+AamOS is a hobby OS project
+
 Copyright (C) 2020 Aamos Pernu
 
 AamOS is free software: you can redistribute it and/or modify
@@ -12,4 +13,4 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
  
 You should have received a copy of the GNU General Public License
-along with this aamOS.  If not, see <https://www.gnu.org/licenses/>.
+along with this AamOS.  If not, see <https://www.gnu.org/licenses/>.
