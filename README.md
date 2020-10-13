@@ -24,6 +24,4 @@ Calling run.sh without arguments will run AamOS using qemu without debug
 
 If running with Bochs, the debug aregument doesn't need to be present
 
-There is also a shortcut to running with QEMU in debug mode
-
-<code>./rungdb.sh && gdb -ex "target remote localhost:1234" -ex "symbol-file aamOS.elf"</code>
+If running QEMU, one can connect to serial ports COM1, COM2, COM3 and COM4 with telnet on localhost ports 1111, 2222, 3333 and 4444 respectively
