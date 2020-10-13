@@ -1,5 +1,23 @@
+/*******************************************************************************
+ * <one line to give the program's name and a brief idea of what it does.>
+ * Copyright (C) 2020 Aamos Pernu
+ * 
+ * AamOS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * AamOS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this aamOS.  If not, see <https://www.gnu.org/licenses/>.
+ ******************************************************************************/
 #include <aamOS/kernel.h>
 #include <stdio.h>
+#include <paging.h>
 
 static void (*isr_handlers[32])(
 		registers_t*) = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
@@ -25,115 +43,112 @@ void register_isr_handler(int n, void (*h)(registers_t*)) {
 }
 
 void DE(registers_t *regs) {
-	write_serial_str("#DE\n");
+	printf("#DE\n");
+	dump_struct(regs, sizeof(regs));
 }
 
 void DB(registers_t *regs) {
-	write_serial_str("#DB\n");
+	printf("#DB\n");
+	dump_struct(regs, sizeof(regs));
 }
 
 void NMI(registers_t *regs) {
-	write_serial_str("Non-maskable Interrupt\n");
+	printf("Non-maskable Interrupt\n");
+	dump_struct(regs, sizeof(regs));
 }
 
 void BP(registers_t *regs) {
-	write_serial_str("#BP\n");
+	printf("#BP\n");
+	dump_struct(regs, sizeof(regs));
 }
 
 void OF(registers_t *regs) {
-	write_serial_str("#OF\n");
+	printf("#OF\n");
+	dump_struct(regs, sizeof(regs));
 }
 
 void BR(registers_t *regs) {
-	write_serial_str("#BR\n");
+	printf("#BR\n");
+	dump_struct(regs, sizeof(regs));
 }
 
 void UD(registers_t *regs) {
-	write_serial_str("#UD\n");
+	printf("#UD\n");
+	dump_struct(regs, sizeof(regs));
 }
 
 void NM(registers_t *regs) {
-	write_serial_str("#NM\n");
+	printf("#NM\n");
+	dump_struct(regs, sizeof(regs));
 }
 
 void DF(registers_t *regs) {
-	write_serial_str("#DF(");
-	char *s;
-	itoa(s, 'd', regs->err_code);
-	write_serial_str(s);
-	write_serial_str(")\n");
+	printf("#DF(%i)\n", regs->err_code);
+	dump_struct(regs, sizeof(regs));
 }
 
 void CSO(registers_t *regs) {
-	write_serial_str("Coprocessor Segment Overrun");
+	printf("Coprocessor Segment Overrun");
+	dump_struct(regs, sizeof(regs));
 }
 
 void TS(registers_t *regs) {
-	write_serial_str("#TS(");
-	char *s;
-	itoa(s, 'd', regs->err_code);
-	write_serial_str(s);
-	write_serial_str(")\n");
+	printf("#TS(%i)\n", regs->err_code);
+	dump_struct(regs, sizeof(regs));
 }
 
 void NP(registers_t *regs) {
-	write_serial_str("#NP(");
-	char *s;
-	itoa(s, 'd', regs->err_code);
-	write_serial_str(s);
-	write_serial_str(")\n");
+	printf("#NP(%i)\n", regs->err_code);
+	dump_struct(regs, sizeof(regs));
 }
 
 void SS(registers_t *regs) {
-	write_serial_str("#SS(");
-	char *s;
-	itoa(s, 'd', regs->err_code);
-	write_serial_str(s);
-	write_serial_str(")\n");
+	printf("#SS(%i)\n", regs->err_code);
+	dump_struct(regs, sizeof(regs));
 }
 
 void GP(registers_t *regs) {
-	write_serial_str("#GP(");
-	char s;
-	itoa(&s, 'd', regs->err_code);
-	write_serial_str(&s);
-	write_serial_str(")\n");
+	printf("#GP(%i)\n", regs->err_code);
+	dump_struct(regs, sizeof(regs));
 }
 
-void PF(registers_t *regs) {
-	write_serial_str("#PF(");
-	char *s;
-	itoa(s, 'd', regs->err_code);
-	write_serial_str(s);
-	write_serial_str(")\n");
-}
+//void PF(registers_t *regs) {
+//	printf("#PF(%i)\n", regs->err_code);
+//	dump_struct(regs, sizeof(regs));
+//}
 
 /* ISR15 is reserved by intel */
 
 void MF(registers_t *regs) {
-	write_serial_str("#MF\n");
+	printf("#MF\n");
+	dump_struct(regs, sizeof(regs));
 }
 
 void AC(registers_t *regs) {
-	write_serial_str("#AC\n");
+	printf("#AC\n");
+	dump_struct(regs, sizeof(regs));
 }
 
 void MC(registers_t *regs) {
-	write_serial_str("#MC\n");
+	printf("#MC\n");
+	dump_struct(regs, sizeof(regs));
 }
 
 void XM(registers_t *regs) {
-	write_serial_str("#XM\n");
+	printf("#XM\n");
+	dump_struct(regs, sizeof(regs));
 }
 
 void VE(registers_t *regs) {
-	write_serial_str("#VE\n");
+	printf("#VE\n");
+	dump_struct(regs, sizeof(regs));
 }
 
 /* ISRs 21-29 are reserved by intel */
 
 void SX(registers_t *regs) {
-	write_serial_str("#SX\n");
+	printf("#SX\n");
+	dump_struct(regs, sizeof(regs));
 }
 
 /* ISR 31 is reserved by intel */
@@ -153,7 +168,7 @@ void init_isrs() {
 	//register_isr_handler(11, NP);
 	//register_isr_handler(12, SS);
 	register_isr_handler(13, GP);
-	//register_isr_handler(14, PF);
+	register_isr_handler(14, page_fault);
 	//register_isr_handler(16, MF);
 	//register_isr_handler(17, AC);
 	//register_isr_handler(18, MC);

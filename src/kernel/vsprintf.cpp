@@ -1,6 +1,20 @@
 /*******************************************************************************
- * Copyright (c) 2020 Aamos Pernu.
- *******************************************************************************/
+ * <one line to give the program's name and a brief idea of what it does.>
+ * Copyright (C) 2020 Aamos Pernu
+ * 
+ * AamOS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * AamOS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this aamOS.  If not, see <https://www.gnu.org/licenses/>.
+ ******************************************************************************/
 #include <stdarg.h>
 #include <string.h>
 #include <printf.h>
@@ -41,7 +55,7 @@ static char* number(char *str, int num, int base, int size, int precision,
 	if (base < 2 || base > 36)
 		return 0;
 	c = (type & ZEROPAD) ? '0' : ' ';
-	if (type & SIGN && num < 0) {
+	if ((type & SIGN) && num < 0) {
 		sign = '-';
 		num = -num;
 	} else
@@ -113,19 +127,19 @@ int __vsprintf(char *buf, const char *fmt, va_list args) {
 		repeat: ++fmt; /* this also skips first '%' */
 		switch (*fmt) {
 		case '-':
-			flags |= LEFT;
+			flags = flags | LEFT;
 			goto repeat;
 		case '+':
-			flags |= PLUS;
+			flags = flags | PLUS;
 			goto repeat;
 		case ' ':
-			flags |= SPACE;
+			flags = flags | SPACE;
 			goto repeat;
 		case '#':
-			flags |= SPECIAL;
+			flags = flags | SPECIAL;
 			goto repeat;
 		case '0':
-			flags |= ZEROPAD;
+			flags = flags | ZEROPAD;
 			goto repeat;
 		}
 
@@ -138,7 +152,7 @@ int __vsprintf(char *buf, const char *fmt, va_list args) {
 			field_width = va_arg(args, int);
 			if (field_width < 0) {
 				field_width = -field_width;
-				flags |= LEFT;
+				flags = flags | LEFT;
 			}
 		}
 
@@ -198,14 +212,14 @@ int __vsprintf(char *buf, const char *fmt, va_list args) {
 		case 'p':
 			if (field_width == -1) {
 				field_width = 8;
-				flags |= ZEROPAD;
+				flags = flags | ZEROPAD;
 			}
 			str = number(str, (unsigned long) va_arg(args, void*), 16,
 					field_width, precision, flags);
 			break;
 
 		case 'x':
-			flags |= SMALL;
+			flags = flags | SMALL;
 		case 'X':
 			str = number(str, va_arg(args, unsigned long), 16, field_width,
 					precision, flags);
@@ -213,7 +227,7 @@ int __vsprintf(char *buf, const char *fmt, va_list args) {
 
 		case 'd':
 		case 'i':
-			flags |= SIGN;
+			flags = flags | SIGN;
 		case 'u':
 			str = number(str, va_arg(args, unsigned long), 10, field_width,
 					precision, flags);

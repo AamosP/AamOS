@@ -1,21 +1,26 @@
 /*******************************************************************************
- * Copyright (c) 2020 IBM Corporation and others.
- *
- * This program and the accompanying materials
- * are made available under the terms of the Eclipse Public License 2.0
- * which accompanies this distribution, and is available at
- * https://www.eclipse.org/legal/epl-2.0/
- *
- * SPDX-License-Identifier: EPL-2.0
- *
- * Contributors:
- *     IBM Corporation - initial API and implementation
- *******************************************************************************/
+ * <one line to give the program's name and a brief idea of what it does.>
+ * Copyright (C) 2020 Aamos Pernu
+ * 
+ * AamOS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * AamOS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this aamOS.  If not, see <https://www.gnu.org/licenses/>.
+ ******************************************************************************/
 #include <asm/io.h>
 #include <asm/system.h>
 #include <idt.h>
 #include <sys/types.h>
 #include <aamOS/kernel.h>
+#include <stdio.h>
 
 static struct IDT_entry IDT[256];
 
@@ -219,247 +224,223 @@ extern "C" void idt_init (void)
 void
 isr0_handler (void)
 {
-  write_serial_str ("#DE\n");
+  printf("#DE\n");
   iret();
 }
 
 void
 isr1_handler (void)
 {
-  write_serial_str ("#DB\n");
+  printf("#DB\n");
   iret();
 }
 
 void
 isr2_handler (void)
 {
-  write_serial_str ("Non-maskable Interrupt\n");
+  printf("Non-maskable Interrupt\n");
   iret();
 }
 
 void
 isr3_handler (void)
 {
-  write_serial_str ("#BP\n");
+  printf("#BP\n");
   iret();
 }
 
 void
 isr4_handler (void)
 {
-  write_serial_str ("#OF\n");
+  printf("#OF\n");
   iret();
 }
 
 void
 isr5_handler (void)
 {
-  write_serial_str ("#BR\n");
+  printf("#BR\n");
   iret();
 }
 
 void
 isr6_handler (void)
 {
-  write_serial_str ("#UD\n");
+  printf("#UD\n");
   iret();
 }
 
 void
 isr7_handler (void)
 {
-  write_serial_str ("#NN\n");
+  printf("#NN\n");
   iret();
 }
 
 void
 isr8_handler (int error)
 {
-  write_serial_str ("#DF(");
-  char *s;
-  itoa (s, 'd', error);
-  write_serial_str (s);
-  write_serial_str (")\n");
+  printf("#DF(%i)/n", error);
   iret();
 }
 
 void
 isr9_handler (void)
 {
-  write_serial_str ("Coprocessor Segment Overrun");
+  printf("Coprocessor Segment Overrun");
   iret();
 }
 
 void
 isr10_handler (int error)
 {
-  write_serial_str ("#TD(");
-  char *s;
-  itoa (s, 'd', error);
-  write_serial_str (s);
-  write_serial_str (")\n");
+  printf("#TD(%i)/n", error);
   iret();
 }
 
 void
 isr11_handler (int error)
 {
-  write_serial_str ("#NP(");
-  char *s;
-  itoa (s, 'd', error);
-  write_serial_str (s);
-  write_serial_str (")\n");
+  printf("#NP(%i)/n", error);
   iret();
 }
 
 void
 isr12_handler (int error)
 {
-  write_serial_str ("#SS(");
-  char *s;
-  itoa (s, 'd', error);
-  write_serial_str (s);
-  write_serial_str (")\n");
+  printf("#SS(%i)/n", error);
   iret();
 }
 
 void
 isr13_handler (unsigned int error)
 {
-  write_serial_str ("#GP(");
-  char *s;
-  itoa (s, 'd', error);
-  write_serial_str (s);
-  write_serial_str (")\n");
+  printf("#GP(%i)/n", error);
   iret();
 }
 
 void
 isr14_handler (int error)
 {
-  write_serial_str ("#PF(");
-  char *s;
-  itoa (s, 'd', error);
-  write_serial_str (s);
-  write_serial_str (")\n");
+  printf("#PF(%i)/n", error);
   iret();
 }
 
 void
 isr15_handler (void)
 {
-  write_serial_str ("Reserved\n");
+  printf("Reserved\n");
   iret();
 }
 
 void
 isr16_handler (void)
 {
-  write_serial_str ("#MF\n");
+  printf("#MF\n");
   iret();
 }
 
 void
 isr17_handler (void)
 {
-  write_serial_str ("#AC\n");
+  printf("#AC\n");
   iret();
 }
 
 void
 isr18_handler (void)
 {
-  write_serial_str ("#MC\n");
+  printf("#MC\n");
   iret();
 }
 
 void
 isr19_handler (void)
 {
-  write_serial_str ("#XM\n");
+  printf("#XM\n");
   iret();
 }
 
 void
 isr20_handler (void)
 {
-  write_serial_str ("#VE\n");
+  printf("#VE\n");
   iret();
 }
 
 void
 isr21_handler (void)
 {
-  write_serial_str ("Reserved\n");
+  printf("Reserved\n");
   iret();
 }
 
 void
 isr22_handler (void)
 {
-  write_serial_str ("Reserved\n");
+  printf("Reserved\n");
   iret();
 }
 
 void
 isr23_handler (void)
 {
-  write_serial_str ("Reserved\n");
+  printf("Reserved\n");
   iret();
 }
 
 void
 isr24_handler (void)
 {
-  write_serial_str ("Reserved\n");
+  printf("Reserved\n");
   iret();
 }
 
 void
 isr25_handler (void)
 {
-  write_serial_str ("Reserved\n");
+  printf("Reserved\n");
   iret();
 }
 
 void
 isr26_handler (void)
 {
-  write_serial_str ("Reserved\n");
+  printf("Reserved\n");
   iret();
 }
 
 void
 isr27_handler (void)
 {
-  write_serial_str ("Reserved\n");
+  printf("Reserved\n");
   iret();
 }
 
 void
 isr28_handler (void)
 {
-  write_serial_str ("Reserved\n");
+  printf("Reserved\n");
   iret();
 }
 
 void
 isr29_handler (void)
 {
-  write_serial_str ("Reserved\n");
+  printf("Reserved\n");
   iret();
 }
 
 void
 isr30_handler (void)
 {
-  write_serial_str ("#SX\n");
+  printf("#SX\n");
   iret();
 }
 
 void
 isr31_handler (void)
 {
-  write_serial_str ("Reserved\n");
+  printf("Reserved\n");
   iret();
 }

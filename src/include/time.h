@@ -1,6 +1,20 @@
 /*******************************************************************************
- * Copyright (c) 2020 Aamos Pernu.
- *******************************************************************************/
+ * <one line to give the program's name and a brief idea of what it does.>
+ * Copyright (C) 2020 Aamos Pernu
+ * 
+ * AamOS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * AamOS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this aamOS.  If not, see <https://www.gnu.org/licenses/>.
+ ******************************************************************************/
 #ifndef _TIME_H
 #define _TIME_H
 
@@ -36,7 +50,8 @@ char *parse_mon(int md);
 int get_wd(int day, int month, int year);
 time_t mktime(struct tm *tp);
 void time_init(void);
-struct tm* get_time();
+struct tm* get_time(void);
 char* parse_wd(int wd);
+time_t get_time_since_startup(void);
 
 #endif

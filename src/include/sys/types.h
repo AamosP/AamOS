@@ -1,8 +1,24 @@
 /*******************************************************************************
- * Copyright (c) 2020 Aamos Pernu.
- *******************************************************************************/
+ * <one line to give the program's name and a brief idea of what it does.>
+ * Copyright (C) 2020 Aamos Pernu
+ * 
+ * AamOS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * AamOS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this aamOS.  If not, see <https://www.gnu.org/licenses/>.
+ ******************************************************************************/
 #ifndef _SYS_TYPES_H
 #define _SYS_TYPES_H
+
+//#include <stdint.h>
 
 #ifndef _SIZE_T
 #define _SIZE_T
@@ -32,6 +48,7 @@ typedef unsigned short mode_t;
 typedef unsigned short umode_t;
 typedef unsigned char nlink_t;
 typedef int daddr_t;
+typedef unsigned int vaddr_t;
 typedef long off_t;
 typedef unsigned char u_char;
 typedef unsigned short ushort;
@@ -43,9 +60,28 @@ typedef signed char int8_t;
 typedef signed short int16_t;
 typedef signed int int32_t;
 typedef signed long long int64_t;
+typedef unsigned int uintptr_t;
 
-typedef struct { int quot,rem; } div_t;
-typedef struct { long quot,rem; } ldiv_t;
+typedef struct {
+	int quot, rem;
+} div_t;
+typedef struct {
+	long quot, rem;
+} ldiv_t;
+
+#if __WORDSIZE == 64
+# ifndef __intptr_t_defined
+//typedef long int                intptr_t;
+//#  define __intptr_t_defined
+# endif
+//typedef unsigned long int        uintptr_t;
+#else
+# ifndef __intptr_t_defined
+//typedef int                        intptr_t;
+//#  define __intptr_t_defined
+# endif
+//typedef unsigned int                uintptr_t;
+#endif
 
 #define FALSE 0
 #define TRUE (!FALSE)
@@ -56,5 +92,6 @@ struct ustat {
 	char f_fname[6];
 	char f_fpack[6];
 };
+
 
 #endif

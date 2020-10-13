@@ -1,6 +1,20 @@
 /*******************************************************************************
- * Copyright (c) 2020 Aamos Pernu.
- *******************************************************************************/
+ * <one line to give the program's name and a brief idea of what it does.>
+ * Copyright (C) 2020 Aamos Pernu
+ * 
+ * AamOS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * AamOS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this aamOS.  If not, see <https://www.gnu.org/licenses/>.
+ ******************************************************************************/
 #include <aamOS/kernel.h>
 #include <asm/io.h>
 #include <stdio.h>
@@ -16,34 +30,34 @@ static unsigned long functable[12] = { 0x415b5b1b, 0x425b5b1b, 0x435b5b1b,
 		0x4a5b5b1b, 0x4b5b5b1b, 0x4c5b5b1b };
 
 static int keymap[0x61] = { 0, 0x1b, '1', '2', '3', '4', '5', '6', '7', '8',
-		'9', '0', '+', '´', 127, 9, 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i',
-		'o', 'p', 'å', '¨', 10, 0, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l',
-		'ö', 'ä', '§', 0, '\'', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '-',
+		'9', '0', '+', 0, 127, 9, 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i',
+		'o', 'p', 0xe5, 0, 10, 0, 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l',
+		0xf6, 0xe4, 0, 0, '\0', 'z', 'x', 'c', 'v', 'b', 'n', 'm', ',', '.', '-',
 		0, '*', 0, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '-', 0,
 		0, 0, '+', 0, 0, 0, 0, 0, 0, 0, '<', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-static int shiftmap[0x61] = { 0, 0x1b, '!', '"', '#', '€', '%', '&', '/', '(',
+static int shiftmap[0x61] = { 0, 0x1b, '!', '"', '#', 0, '%', '&', '/', '(',
 		')', '=', '?', '`', 127, 9, 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O',
-		'P', 'Å', '^', 10, 0, 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'Ö',
-		'Ä', '°', 0, '*', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', ';', ':', '_', 0,
+		'P', 0xc5, '^', 10, 0, 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 0xd6,
+		0xc4, 0, 0, '*', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', ';', ':', '_', 0,
 		'*', 0, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '-', 0, 0,
 		0, '+', 0, 0, 0, 0, 0, 0, 0, '>', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-static int altmap[0x61] = { 0, 0, '\0', '@', '£', '$', '\0', '\0', '|', '[',
-		']', '≈', '±', '\0', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '~', 10, 0,
+static int altmap[0x61] = { 0, 0, '\0', '@', 0, '$', '\0', '\0', '|', '[',
+		']', 0, 0, '\0', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '~', 10, 0,
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 		0, 0, 0, 0, 0, 0, 0, 0, '|', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
-static const char *num_table = "789 456 1230,";
-static const char *cur_table = "HA5 DGC YB623";
+//static const char *num_table = "789 456 1230,";
+//static const char *cur_table = "HA5 DGC YB623";
 
 static int key = 0;
 static char buf[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
 
 static void kb_wait(void) {
 	int n = inb(0x64);
-	while (!(n << 1)) {
+	while ((n << 1) == 0) {
 		n = inb(0x64);
 	}
 }
@@ -285,11 +299,15 @@ static void (*key_table[256])(void) = {none,do_self,do_self,do_self, /* 00-03 s0
 void kb_init() {
 	register_irq_handler(1, kb_handler);
 	outb(0x60, 0xf5);
+	inb(0x60);
 	outb(0x60, 0xf0);
+	inb(0x60);
 	outb(0x60, 0x02);
+	inb(0x60);
 	outb(0x60, 0xf4);
+	inb(0x60);
 	//return;
-	write_serial('k');
+	//write_serial('k');
 }
 
 void kb_handler(registers_t *regs) {
@@ -306,7 +324,9 @@ void kb_handler(registers_t *regs) {
 		e0 = 0;
 	}
 	char c = get_queue();
-	//write_serial(c);
+	write_serial(c);
 	printf("%c", c);
-	//write_char(0x0f00, c);
+	//const char* s = "";
+	//itoa((char*)s, 'x', regs->err_code);
+	//write_serial_str(s);
 }

@@ -1,6 +1,20 @@
 /*******************************************************************************
- * Copyright (c) 2020 Aamos Pernu.
- *******************************************************************************/
+ * <one line to give the program's name and a brief idea of what it does.>
+ * Copyright (C) 2020 Aamos Pernu
+ * 
+ * AamOS is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * AamOS is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this aamOS.  If not, see <https://www.gnu.org/licenses/>.
+ ******************************************************************************/
 #include <time.h>
 #include <asm/io.h>
 
@@ -36,7 +50,7 @@ DAY * (31 + 29 + 31 + 30 + 31 + 30 + 31 + 31 + 30),
 DAY * (31 + 29 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 31),
 DAY * (31 + 29 + 31 + 30 + 31 + 30 + 31 + 31 + 30 + 31 + 30) };
 
-static char* months[12] = {
+static const char* months[12] = {
 		"January",
 		"February",
 		"March",
@@ -52,7 +66,11 @@ static char* months[12] = {
 };
 
 char *parse_mon(int md) {
-	return months[md];
+	return (char*)months[md];
+}
+
+time_t get_time_since_startup() {
+	return startup_time - mktime(get_time());
 }
 
 time_t mktime(struct tm *tm) {
@@ -99,9 +117,9 @@ void time_init() {
 	startup_time = mktime(get_time());
 }
 
-static char *weekdays[7] = { "Sunday", "Monday", "Tuesday",
+static const char *weekdays[7] = { "Sunday", "Monday", "Tuesday",
 		"Wednesday", "Thursday", "Friday", "Saturday" };
 
 char* parse_wd(int wd) {
-	return weekdays[wd-1];
+	return (char*)weekdays[wd-1];
 }

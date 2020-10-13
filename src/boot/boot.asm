@@ -1,3 +1,21 @@
+;-------------------------------------------------------------------------------
+; <one line to give the program's name and a brief idea of what it does.>
+; Copyright (C) 2020 Aamos Pernu
+; 
+; AamOS is free software: you can redistribute it and/or modify
+; it under the terms of the GNU General Public License as published by
+; the Free Software Foundation, either version 3 of the License, or
+; (at your option) any later version.
+; 
+; AamOS is distributed in the hope that it will be useful,
+; but WITHOUT ANY WARRANTY; without even the implied warranty of
+; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+; GNU General Public License for more details.
+; 
+; You should have received a copy of the GNU General Public License
+; along with this aamOS.  If not, see <https://www.gnu.org/licenses/>.
+;-------------------------------------------------------------------------------
+
 section .boot
 bits 16
 
@@ -54,12 +72,12 @@ boot:
     mov ax,0x2401
     int 0x15 ; enable A20 bit
 
-	push ebx
-
 	xchg bx,bx
 
 	mov ax,0x3
 	int 0x10
+
+	push ebx
 
     mov [disk],dl
 	mov ah, 0x2
@@ -93,14 +111,14 @@ gdt_code:
     dw 0xFFFF
     dw 0x0000
     dw 0x9a00
-    dw 0x00c0
+    dw 0x00C0
 gdt_data:
     dw 0xFFFF
     dw 0x0000
     dw 0x9200
-    dw 0x00c0
-;gdt_null:
-;	dq 0x0000000000000000
+    dw 0x00C0
+gdt_null:
+	dw 0,0,0,0
 gdt_end:
 gdt_pointer:
 	dw gdt_end - gdt_start
